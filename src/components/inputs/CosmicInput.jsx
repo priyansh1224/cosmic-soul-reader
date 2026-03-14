@@ -5,7 +5,6 @@
 import { useState, useRef, useCallback, memo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@utils/helpers'
-import useSoundEffects from '@hooks/useSoundEffects'
 
 const CosmicInput = memo(({
   label,
@@ -32,7 +31,6 @@ const CosmicInput = memo(({
   const [rippleActive, setRippleActive] = useState(false)
   const inputRef = useRef(null)
   const containerRef = useRef(null)
-  const { playHover } = useSoundEffects()
 
   const hasValue = value && String(value).length > 0
   const isFloating = isFocused || hasValue
@@ -110,12 +108,9 @@ const CosmicInput = memo(({
   const handleFocus = useCallback((e) => {
     setIsFocused(true)
     setRippleActive(true)
-    playHover()
-    
     setTimeout(() => setRippleActive(false), 600)
-    
     props.onFocus?.(e)
-  }, [playHover, props])
+  }, [props])
 
   // Blur handler
   const handleBlur = useCallback((e) => {
@@ -136,14 +131,12 @@ const CosmicInput = memo(({
           // Background
           isFocused ? c.bg : 'bg-white/[0.03]',
           // Shadow
-          isFocused && 'ring-4',
-          isFocused && c.ring,
           // Disabled
           disabled && 'opacity-50 cursor-not-allowed',
         )}
         style={{
           boxShadow: isFocused
-            ? `0 0 30px ${c.glow}, inset 0 0 15px ${c.glow.replace('0.3', '0.05')}`
+            ? `0 0 30px ${c.glow}, inset 0 0 15px ${c.glow.replace('0.3', '0.05')}, inset 0 0 0 3px ${c.glow.replace('0.3', '0.25')}`
             : 'none',
         }}
       >
@@ -177,24 +170,12 @@ const CosmicInput = memo(({
 
         {/* ─── EDGE GLOW LINES ─── */}
         <motion.div
-          className="absolute top-0 left-0 right-0 h-[1px]"
+          className="absolute top-0 left-0 right-0 h-[1px] pointer-events-none"
           animate={{
             opacity: isFocused ? 1 : 0,
-            background: isFocused
-              ? `linear-gradient(90deg, transparent, ${c.glow.replace('0.3', '0.8')}, transparent)`
-              : 'transparent',
+            background: `linear-gradient(90deg, transparent, ${c.glow.replace('0.3', '0.8')}, transparent)`,
           }}
           transition={{ duration: 0.3 }}
-        />
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 h-[1px]"
-          animate={{
-            opacity: isFocused ? 0.5 : 0,
-            background: isFocused
-              ? `linear-gradient(90deg, transparent, ${c.glow.replace('0.3', '0.6')}, transparent)`
-              : 'transparent',
-          }}
-          transition={{ duration: 0.3, delay: 0.1 }}
         />
 
         {/* ─── INPUT FIELD ─── */}
@@ -236,7 +217,7 @@ const CosmicInput = memo(({
               autoComplete={autoComplete}
               placeholder={isFloating ? placeholder : ' '}
               className={cn(
-                'w-full bg-transparent outline-none',
+                'w-full bg-transparent outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0',
                 'text-white text-lg font-body',
                 'transition-all duration-300',
                 '[color-scheme:dark]',

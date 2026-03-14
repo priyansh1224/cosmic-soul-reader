@@ -211,7 +211,7 @@ const SoulInputForm = memo(() => {
                     subtitle="Tell us who you are, cosmic traveler"
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <CosmicInput
                       label="First Name"
                       name="firstName"

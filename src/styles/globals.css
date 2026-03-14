@@ -72,6 +72,13 @@
     @apply outline-none ring-2 ring-cosmic-purple-500 ring-offset-2 ring-offset-cosmic-dark;
   }
 
+  /* Suppress default focus ring on custom-styled inputs */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-0 ring-offset-0;
+  }
+
   /* Scrollbar Styling */
   .no-scrollbar::-webkit-scrollbar {
     display: none;

@@ -2,11 +2,10 @@
 // 💎 CRYSTAL DATE PICKER - 3-Part Date Input with Crystal Effects
 // ═══════════════════════════════════════════════════════════════════
 
-import { memo, useCallback, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@utils/helpers'
 import { MONTHS } from '@utils/constants'
-import useSoundEffects from '@hooks/useSoundEffects'
 
 const CrystalDatePicker = memo(({
   day = '',
@@ -21,7 +20,43 @@ const CrystalDatePicker = memo(({
   const [focusedField, setFocusedField] = useState(null)
   const [monthDropdownOpen, setMonthDropdownOpen] = useState(false)
   const monthRef = useRef(null)
-  const { playClick, playHover } = useSoundEffects()
+  const [dropdownStyle, setDropdownStyle] = useState({})
+
+  // Calculate dropdown position for mobile (fixed) vs desktop (absolute)
+  useEffect(() => {
+    if (!monthDropdownOpen || !monthRef.current) return
+    const rect = monthRef.current.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    const isMobile = window.innerWidth < 640
+    if (isMobile) {
+      setDropdownStyle({
+        position: 'fixed',
+        top: spaceBelow > 220 ? rect.bottom + 8 : rect.top - 220,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      })
+    } else {
+      setDropdownStyle({})
+    }
+  }, [monthDropdownOpen])
+
+  // Close dropdown on outside click/touch
+  useEffect(() => {
+    if (!monthDropdownOpen) return
+    const handler = (e) => {
+      if (monthRef.current && !monthRef.current.contains(e.target)) {
+        setMonthDropdownOpen(false)
+        setFocusedField(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [monthDropdownOpen])
 
   const handleDayChange = useCallback((e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 2)
@@ -38,8 +73,7 @@ const CrystalDatePicker = memo(({
   const selectMonth = useCallback((monthValue) => {
     onMonthChange?.({ target: { name: 'month', value: monthValue } })
     setMonthDropdownOpen(false)
-    playClick()
-  }, [onMonthChange, playClick])
+  }, [onMonthChange])
 
   const selectedMonth = MONTHS.find(m => m.value === parseInt(month))
   const hasError = errors.day || errors.month || errors.year
@@ -52,10 +86,10 @@ const CrystalDatePicker = memo(({
       </label>
 
       {/* ─── DATE FIELDS CONTAINER ─── */}
-      <div className="flex gap-3">
+      <div className="flex gap-2 sm:gap-3">
         {/* ─── DAY ─── */}
         <motion.div
-          className="relative flex-shrink-0 w-20"
+          className="relative flex-shrink-0 w-16 sm:w-20"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
@@ -75,7 +109,7 @@ const CrystalDatePicker = memo(({
               inputMode="numeric"
               value={day}
               onChange={handleDayChange}
-              onFocus={() => { setFocusedField('day'); playHover() }}
+              onFocus={() => setFocusedField('day')}
               onBlur={() => setFocusedField(null)}
               placeholder="DD"
               maxLength={2}
@@ -108,7 +142,6 @@ const CrystalDatePicker = memo(({
             onClick={() => {
               setMonthDropdownOpen(!monthDropdownOpen)
               setFocusedField('month')
-              playClick()
             }}
             className={cn(
               'w-full rounded-2xl border-2 overflow-hidden transition-all duration-500 text-left',
@@ -121,11 +154,11 @@ const CrystalDatePicker = memo(({
               boxShadow: focusedField === 'month' || monthDropdownOpen ? '0 0 20px rgba(236,72,153,0.2)' : 'none',
             }}
           >
-            <div className="pt-5 pb-2 px-4 flex items-center justify-between">
-              <span className={cn('text-lg font-body', month ? 'text-white' : 'text-white/20')}>
+            <div className="pt-5 pb-2 px-2 sm:px-4 flex items-center justify-between">
+              <span className={cn('text-base sm:text-lg font-body truncate', month ? 'text-white' : 'text-white/20')}>
                 {selectedMonth ? (
-                  <span className="flex items-center gap-2">
-                    <span>{selectedMonth.icon}</span>
+                  <span className="flex items-center gap-1 sm:gap-2">
+                    <span className="text-sm sm:text-base">{selectedMonth.icon}</span>
                     <span>{selectedMonth.short}</span>
                   </span>
                 ) : 'Month'}
@@ -152,12 +185,13 @@ const CrystalDatePicker = memo(({
             {monthDropdownOpen && (
               <motion.div
                 className={cn(
-                  'absolute z-50 w-full mt-2',
                   'bg-cosmic-abyss/95 backdrop-blur-2xl',
                   'border border-white/10 rounded-2xl',
                   'shadow-cosmic-lg overflow-hidden',
-                  'max-h-48 overflow-y-auto scrollbar-hidden',
+                  'max-h-52 overflow-y-auto scrollbar-hidden',
+                  Object.keys(dropdownStyle).length === 0 && 'absolute z-50 w-full mt-2',
                 )}
+                style={dropdownStyle}
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -196,7 +230,7 @@ const CrystalDatePicker = memo(({
 
         {/* ─── YEAR ─── */}
         <motion.div
-          className="relative flex-shrink-0 w-24"
+          className="relative flex-shrink-0 w-20 sm:w-24"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
@@ -216,7 +250,7 @@ const CrystalDatePicker = memo(({
               inputMode="numeric"
               value={year}
               onChange={handleYearChange}
-              onFocus={() => { setFocusedField('year'); playHover() }}
+              onFocus={() => setFocusedField('year')}
               onBlur={() => setFocusedField(null)}
               placeholder="YYYY"
               maxLength={4}
