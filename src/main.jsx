@@ -6,6 +6,7 @@ import App from './App.jsx'
 import './styles/globals.css'
 import './styles/animations.css'
 import './styles/cosmic-theme.css'
+import './styles/portal-loader.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

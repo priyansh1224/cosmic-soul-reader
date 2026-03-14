@@ -396,16 +396,16 @@ const useAudioStore = create((set, get) => ({
     }
   },
 
-  startAmbient: () => {
+  startAmbient: (src) => {
     if (!get().isMuted && !get().isAmbientPlaying) {
-      audioEngine.startAmbient()
+      audioEngine.startAmbient(src)
       set({ isAmbientPlaying: true, isPlaying: true })
     }
   },
 
-  playAmbient: () => {
+  playAmbient: (src) => {
     if (!get().isMuted && !get().isAmbientPlaying) {
-      audioEngine.startAmbient()
+      audioEngine.startAmbient(src)
       set({ isAmbientPlaying: true, isPlaying: true })
     }
   },

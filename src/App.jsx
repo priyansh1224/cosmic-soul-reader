@@ -2,11 +2,10 @@
 // 🌌 COSMIC SOUL READER - Main App Component
 // ═══════════════════════════════════════════════════════════════════
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import useCosmicStore from './stores/useCosmicStore'
 import useUIStore from './stores/useUIStore'
-import useAudioStore from './stores/useAudioStore'
 import useSoundEffects from './hooks/useSoundEffects'
 import { SECTIONS } from './utils/constants'
 
@@ -21,27 +20,52 @@ import QuantumCursor from './components/ui/QuantumCursor'
 function App() {
   const { isLoading, currentSection, setLoading, goToWelcome } = useCosmicStore()
   const { theme } = useUIStore()
-  const { startAmbient, isAmbientPlaying } = useAudioStore()
   const [muted, setMuted] = useState(false)
+  const audioRef = useRef(null)
+  const startedRef = useRef(false)
   useSoundEffects()
 
-  // Auto-start ambient on first interaction (browser requires user gesture)
+  // Create audio element once
   useEffect(() => {
-    const start = () => startAmbient('/sounds/cosmic-ambient.mpeg')
-    document.addEventListener('click', start, { once: true })
-    document.addEventListener('keydown', start, { once: true })
+    const audio = new Audio('/sounds/cosmic-ambient.mpeg')
+    audio.loop = true
+    audio.volume = 0
+    audioRef.current = audio
+    return () => { audio.pause(); audio.src = '' }
+  }, [])
+
+  // Start on first user interaction
+  useEffect(() => {
+    const start = () => {
+      if (startedRef.current || !audioRef.current) return
+      startedRef.current = true
+      audioRef.current.play()
+        .then(() => {
+          // Fade in
+          let vol = 0
+          const fade = setInterval(() => {
+            vol = Math.min(0.4, vol + 0.01)
+            if (audioRef.current) audioRef.current.volume = vol
+            if (vol >= 0.4) clearInterval(fade)
+          }, 80)
+        })
+        .catch(() => {})
+    }
+    document.addEventListener('click', start)
+    document.addEventListener('keydown', start)
+    document.addEventListener('touchstart', start)
     return () => {
       document.removeEventListener('click', start)
       document.removeEventListener('keydown', start)
+      document.removeEventListener('touchstart', start)
     }
-  }, [startAmbient])
+  }, [])
 
-  // Mute/unmute by setting audioEl volume directly
   const handleToggleMute = () => {
-    const engine = useAudioStore.getState().engine
+    if (!audioRef.current) return
     const next = !muted
     setMuted(next)
-    if (engine?.audioEl) engine.audioEl.volume = next ? 0 : 0.35
+    audioRef.current.volume = next ? 0 : 0.4
   }
   const [stars, setStars] = useState([])
 
