@@ -27,7 +27,7 @@ function App() {
 
   // Auto-start ambient on first interaction (browser requires user gesture)
   useEffect(() => {
-    const start = () => startAmbient('/sounds/cosmic-ambient.mp3')
+    const start = () => startAmbient('/sounds/cosmic-ambient.mpeg')
     document.addEventListener('click', start, { once: true })
     document.addEventListener('keydown', start, { once: true })
     return () => {

@@ -53,7 +53,7 @@ class CosmicAudioEngine {
     audio.play().catch(() => {})
   }
 
-  startAmbient(src = '/sounds/ambient.mp3') {
+  startAmbient(src = '/sounds/cosmic-ambient.mpeg') {
     if (this.isPlaying) return
     if (!this.audioEl) {
       this.audioEl = new Audio(src)
