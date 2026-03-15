@@ -1,960 +1,1080 @@
 // ═══════════════════════════════════════════════════════════════════
-// 🔮 COSMIC SOUL READER - COMPLETE ZODIAC DATABASE
+// 🕉️ COSMIC SOUL READER - COMPLETE VEDIC JYOTISH RASHI DATABASE
+// Based on authentic Drik Panchang Nakshatra-Rashi mapping
+// ═══════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────
+// 🔤 NAKSHATRA-BASED NAME SYLLABLE → RASHI MAPPING
+// Each Rashi is determined by the first syllable of the birth name
+// as per Vedic Jyotish tradition
+// ─────────────────────────────────────────────────────────────────
+
+const RASHI_NAME_MAP = {
+  // ═══ MESHA (Aries) ═══
+  // Primary: अ (A), ल (L), इ (E/I)
+  // Nakshatra syllables: Chu, Che, Cho, Laa, Li, Loo, Le, Lo, A
+  mesha: {
+    primary: ['a', 'l', 'e', 'i'],
+    syllables: [
+      'chu', 'che', 'cho',
+      'laa', 'la', 'li', 'lee', 'loo', 'lu', 'le', 'lo',
+      'a', 'aa', 'ai', 'ee',
+    ],
+    hindi: ['अ', 'ल', 'इ'],
+    hindiSyllables: ['चू', 'चे', 'चो', 'ला', 'ली', 'लू', 'ले', 'लो', 'अ'],
+  },
+
+  // ═══ VRISHABHA (Taurus) ═══
+  // Primary: ब (B/Ba), व (V/Va), उ (U)
+  // Nakshatra syllables: Ee, U, E, O, Vaa, Vee, Vu, Ve, Vo
+  vrishabha: {
+    primary: ['b', 'v', 'u', 'w'],
+    syllables: [
+      'ba', 'bee', 'bi', 'bu', 'boo', 'be', 'bo',
+      'va', 'vaa', 'vee', 'vi', 'vu', 'voo', 've', 'vo',
+      'wa', 'wee', 'wi', 'wu',
+      'u', 'oo',
+      'ee', 'o',
+    ],
+    hindi: ['ब', 'व', 'उ'],
+    hindiSyllables: ['ई', 'उ', 'ए', 'ओ', 'वा', 'वी', 'वू', 'वे', 'वो'],
+  },
+
+  // ═══ MITHUNA (Gemini) ═══
+  // Primary: क (K/Ka), छ (Chh), घ (Gh)
+  // Nakshatra syllables: Kaa, Kee, Ku, Gha, Ing, Chha, Ke, Ko, Haa
+  mithuna: {
+    primary: ['k', 'chh', 'gh'],
+    syllables: [
+      'ka', 'kaa', 'kee', 'ki', 'ku', 'koo', 'ke', 'ko',
+      'chha', 'chhe', 'chhi', 'chho', 'chhu',
+      'gha', 'ghee', 'ghi', 'gho', 'ghu',
+      'ing',
+      'haa',
+    ],
+    hindi: ['क', 'छ', 'घ'],
+    hindiSyllables: ['का', 'की', 'कु', 'घ', 'इं', 'छ', 'के', 'को', 'हा'],
+  },
+
+  // ═══ KARKA (Cancer) ═══
+  // Primary: ड (D/Da), ह (H/Ha)
+  // Nakshatra syllables: Hee, Hu, He, Ho, Daa, Dee, Doo, De, Do
+  karka: {
+    primary: ['d', 'h'],
+    syllables: [
+      'da', 'daa', 'dee', 'di', 'doo', 'du', 'de', 'do',
+      'ha', 'hee', 'hi', 'hu', 'hoo', 'he', 'ho',
+    ],
+    hindi: ['ड', 'ह'],
+    hindiSyllables: ['ही', 'हु', 'हे', 'हो', 'डा', 'डी', 'डू', 'डे', 'डो'],
+  },
+
+  // ═══ SIMHA (Leo) ═══
+  // Primary: म (M/Ma), ट (T/Ta)
+  // Nakshatra syllables: Maa, Mee, Moo, Me, Mo, Taa, Tee, Too, Te
+  simha: {
+    primary: ['m', 't'],
+    syllables: [
+      'ma', 'maa', 'mee', 'mi', 'moo', 'mu', 'me', 'mo',
+      'ta', 'taa', 'tee', 'ti', 'too', 'tu', 'te',
+    ],
+    hindi: ['म', 'ट'],
+    hindiSyllables: ['मा', 'मी', 'मू', 'मे', 'मो', 'टा', 'टी', 'टू', 'टे'],
+  },
+
+  // ═══ KANYA (Virgo) ═══
+  // Primary: प (P/Pa), ठ (Th/Tha), ण (N/Na)
+  // Nakshatra syllables: To, Paa, Pee, Poo, Sha, Na, Tha, Pe, Po
+  kanya: {
+    primary: ['p', 'th', 'n'],
+    syllables: [
+      'pa', 'paa', 'pee', 'pi', 'poo', 'pu', 'pe', 'po',
+      'tha', 'thee', 'thi', 'tho', 'thu',
+      'na', 'naa', 'nee', 'ni', 'noo', 'nu',
+      'sha',
+      'to',
+    ],
+    hindi: ['प', 'ठ', 'ण'],
+    hindiSyllables: ['टो', 'पा', 'पी', 'पू', 'ष', 'ण', 'ठ', 'पे', 'पो'],
+  },
+
+  // ═══ TULA (Libra) ═══
+  // Primary: र (R/Ra), त (T/Ta)
+  // Nakshatra syllables: Raa, Ree, Roo, Re, Ro, Taa, Tee, Too, Te
+  tula: {
+    primary: ['r'],
+    syllables: [
+      'ra', 'raa', 'ree', 'ri', 'roo', 'ru', 're', 'ro',
+      'taa', 'tee', 'too',
+    ],
+    hindi: ['र', 'त'],
+    hindiSyllables: ['रा', 'री', 'रू', 'रे', 'रो', 'ता', 'ती', 'तू', 'ते'],
+  },
+
+  // ═══ VRISHCHIKA (Scorpio) ═══
+  // Primary: न (N/Na), य (Y/Ya)
+  // Nakshatra syllables: To, Naa, Nee, Noo, Ne, No, Yaa, Yee, Yu
+  vrishchika: {
+    primary: ['n', 'y'],
+    syllables: [
+      'naa', 'ne', 'nee', 'no', 'noo', 'nu',
+      'ya', 'yaa', 'yee', 'yi', 'yu', 'yoo',
+      'to',
+    ],
+    hindi: ['न', 'य'],
+    hindiSyllables: ['तो', 'ना', 'नी', 'नू', 'ने', 'नो', 'या', 'यी', 'यू'],
+  },
+
+  // ═══ DHANU (Sagittarius) ═══
+  // Primary: भ (Bh/Bha), ध (Dh/Dha), फ (Ph/Pha), ढ (Dha)
+  // Nakshatra syllables: Ye, Yo, Bhaa, Bhee, Bhoo, Dhaa, Phaa, Dha, Bhe
+  dhanu: {
+    primary: ['bh', 'dh', 'ph', 'f'],
+    syllables: [
+      'ye', 'yo',
+      'bha', 'bhaa', 'bhee', 'bhi', 'bhoo', 'bhu', 'bhe', 'bho',
+      'dha', 'dhaa', 'dhee', 'dhi', 'dhoo', 'dhu',
+      'pha', 'phaa', 'phee', 'phi', 'phoo', 'phu',
+      'fa', 'fee', 'fi', 'fo', 'fu',
+    ],
+    hindi: ['भ', 'ध', 'फ', 'ढ'],
+    hindiSyllables: ['ये', 'यो', 'भा', 'भी', 'भू', 'धा', 'फा', 'ढ', 'भे'],
+  },
+
+  // ═══ MAKARA (Capricorn) ═══
+  // Primary: ख (Kh/Kha), ज (J/Ja)
+  // Nakshatra syllables: Bho, Jaa, Jee, Khee, Khoo, Gaa, Gee
+  makara: {
+    primary: ['kh', 'j'],
+    syllables: [
+      'bho',
+      'ja', 'jaa', 'jee', 'ji', 'joo', 'ju', 'je', 'jo',
+      'kha', 'khaa', 'khee', 'khi', 'khoo', 'khu', 'khe', 'kho',
+      'gaa', 'gee', 'gi',
+    ],
+    hindi: ['ख', 'ज'],
+    hindiSyllables: ['भो', 'जा', 'जी', 'खी', 'खू', 'गा', 'गी'],
+  },
+
+  // ═══ KUMBHA (Aquarius) ═══
+  // Primary: ग (G/Ga), श (Sh/Sha), ष (Sh), स (S/Sa)
+  // Nakshatra syllables: Gu, Ge, Go, Saa, See, Soo, Se, Daa
+  kumbha: {
+    primary: ['g', 's', 'sh'],
+    syllables: [
+      'ga', 'gu', 'goo', 'ge', 'go',
+      'sa', 'saa', 'see', 'si', 'soo', 'su', 'se', 'so',
+      'sha', 'shaa', 'shee', 'shi', 'shoo', 'shu', 'she', 'sho',
+      'daa',
+    ],
+    hindi: ['ग', 'श', 'ष', 'स'],
+    hindiSyllables: ['गु', 'गे', 'गो', 'सा', 'सी', 'सू', 'से', 'दा'],
+  },
+
+  // ═══ MEENA (Pisces) ═══
+  // Primary: द (D/Da), च (Ch/Cha), झ (Jh/Jha), थ (Th/Tha)
+  // Nakshatra syllables: Dee, Doo, Tha, Jha, Yna, De, Do, Cha, Chee
+  meena: {
+    primary: ['ch', 'jh', 'th'],
+    syllables: [
+      'dee', 'di', 'doo', 'du', 'de', 'do',
+      'cha', 'chaa', 'chee', 'chi', 'choo', 'chu', 'che', 'cho',
+      'jha', 'jhee', 'jhi', 'jhoo', 'jhu',
+      'tha', 'thaa', 'thee', 'thi', 'thoo', 'thu',
+    ],
+    hindi: ['द', 'च', 'झ', 'थ'],
+    hindiSyllables: ['दी', 'दू', 'थ', 'झ', 'ञ', 'दे', 'दो', 'चा', 'ची'],
+  },
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🕉️ COMPLETE VEDIC ZODIAC SIGNS DATABASE
 // ═══════════════════════════════════════════════════════════════════
 
 export const ZODIAC_SIGNS = {
-  aries: {
-    id: 'aries',
+  mesha: {
+    id: 'mesha',
+    westernId: 'aries',
     symbol: '♈',
-    name: 'Aries',
+    name: 'Mesha',
+    westernName: 'Aries',
+    hindiName: 'मेष',
     latinName: 'Aries',
     dates: 'March 21 - April 19',
+    nameLetters: 'A, L, E | अ, ल, इ',
+    nameLettersDetailed: 'Chu, Che, Cho, Laa, Li, Loo, Le, Lo, A',
     startMonth: 3,
     startDay: 21,
     endMonth: 4,
     endDay: 19,
-    season: 'Spring',
+    season: 'Vasant (Spring)',
 
     // Element & Modality
-    element: 'Fire',
+    element: 'Agni (Fire)',
     elementIcon: '🔥',
     elementType: 'fire',
-    quality: 'Cardinal',
+    quality: 'Chara (Cardinal)',
     polarity: 'Positive (Yang)',
+    vedicGuna: 'Rajas',
 
     // Celestial Bodies
-    rulingPlanet: 'Mars',
+    rulingPlanet: 'Mangal (Mars)',
     rulingPlanetSymbol: '♂',
-    planetDescription: 'Mars bestows courage, assertiveness, and warrior energy',
-    decanRulers: ['Mars', 'Sun', 'Jupiter'],
-    exaltedPlanet: 'Sun',
-    detrimentPlanet: 'Venus',
-    fallPlanet: 'Saturn',
+    planetDescription: 'Mangal bestows courage, warrior energy, and fearless determination upon Mesha natives',
+    decanRulers: ['Mangal (Mars)', 'Surya (Sun)', 'Guru (Jupiter)'],
+    exaltedPlanet: 'Surya (Sun)',
+    detrimentPlanet: 'Shukra (Venus)',
+    fallPlanet: 'Shani (Saturn)',
+    nakshatras: ['Ashwini', 'Bharani', 'Krittika (1st pada)'],
 
     // Lucky Items
     luckyNumbers: [1, 8, 17, 9, 27],
-    luckyColor: 'Red',
+    luckyColor: 'Laal (Red)',
     luckyColors: ['#FF4136', '#FF6B6B', '#C0392B', '#E74C3C'],
-    luckyGem: 'Diamond',
-    luckyGemEmoji: '💎',
+    luckyGem: 'Moonga (Red Coral)',
+    luckyGemEmoji: '🔴',
     luckyFlower: 'Honeysuckle',
     luckyFlowerEmoji: '🌺',
-    luckyDay: 'Tuesday',
-    luckyMetal: 'Iron',
-    luckyAnimal: 'Ram',
+    luckyDay: 'Mangalvar (Tuesday)',
+    luckyMetal: 'Loha (Iron)',
+    luckyAnimal: 'Mesha (Ram)',
     luckyAnimalEmoji: '🐏',
+    luckyDirection: 'Poorv (East)',
+    luckyDeity: 'Lord Kartikeya / Hanuman',
 
     // Personality
-    personality: 'Bold, ambitious, and fearlessly confident, Aries charges through life with the unstoppable force of a cosmic wildfire. As the first sign of the zodiac, you are a natural-born pioneer who thrives on challenge and adventure. Your inner fire burns with an intensity that inspires everyone around you. You possess an innate courage that allows you to face any obstacle head-on, turning impossible dreams into reality with sheer willpower and determination.',
+    personality: 'Bold, ambitious, and fearlessly confident, Mesha charges through life with the unstoppable force of a cosmic wildfire. As the first Rashi of the zodiac, you are a natural-born pioneer who thrives on challenge and adventure. Ruled by Mangal (Mars), your inner fire burns with an intensity that inspires everyone around you. You possess an innate courage that allows you to face any obstacle head-on, turning impossible dreams into reality with sheer willpower and determination. The Vedic scriptures say Mesha natives carry the spark of creation itself.',
 
     strengths: ['Courageous', 'Determined', 'Confident', 'Enthusiastic', 'Optimistic', 'Honest', 'Passionate', 'Natural Leader'],
     weaknesses: ['Impatient', 'Impulsive', 'Short-tempered', 'Aggressive', 'Self-centered', 'Competitive'],
 
-    // Detailed Traits
-    loveStyle: 'In love, Aries burns with an all-consuming passion that lights up any room. You pursue your romantic interests with fierce determination and unapologetic directness. Your ideal partner must match your energy and never try to tame your wild spirit. When you fall in love, you fall hard and fast, showering your partner with attention and grand romantic gestures.',
+    loveStyle: 'In love, Mesha burns with an all-consuming passion that lights up any room. You pursue your romantic interests with fierce determination and unapologetic directness. Your ideal partner must match your energy and never try to tame your wild spirit. When you fall in love, you fall hard and fast, showering your partner with attention and grand romantic gestures.',
 
-    careerPath: 'Natural-born leaders, Aries excel in roles that demand quick thinking, bold action, and pioneering vision. You thrive in competitive environments and are drawn to careers in entrepreneurship, athletics, military, emergency services, and leadership positions. Your drive to be first makes you a trailblazer in any field you choose.',
+    careerPath: 'Natural-born leaders, Mesha natives excel in roles that demand quick thinking, bold action, and pioneering vision. You thrive in competitive environments and are drawn to careers in entrepreneurship, athletics, military, emergency services, and leadership positions.',
 
-    healthFocus: 'As the ruler of the head, Aries should pay attention to headaches, migraines, and stress-related tension. Your high-energy nature demands regular physical exercise to channel your abundant fire energy. Combat sports, running, and competitive athletics are ideal outlets for your warrior spirit.',
+    healthFocus: 'As the ruler of the head, Mesha should pay attention to headaches, migraines, and stress-related tension. Your high-energy nature demands regular physical exercise. Combat sports, running, and competitive athletics are ideal outlets.',
 
-    spiritualPath: 'Your spiritual journey is about learning to channel your tremendous fire energy with wisdom and patience. Meditation practices that focus on stillness and inner peace are transformative for you. Your lesson is discovering that true strength lies not in constant action, but in knowing when to pause and listen to the universe.',
+    spiritualPath: 'Your spiritual journey is about learning to channel your tremendous Agni (fire) energy with wisdom and patience. Hanuman Chalisa and Mars-related mantras are transformative for you. Your lesson is discovering that true strength lies in knowing when to pause and listen to the universe.',
 
     lifeLesson: 'Learning that true courage includes vulnerability, and that patience is not weakness but profound strength.',
 
-    mantra: 'I am the spark that ignites change. My courage creates new worlds.',
+    mantra: 'ॐ अं अंगारकाय नमः | Om Ang Angarakaya Namah',
+    vedanticWisdom: 'The fire that burns within you is the same divine fire that creates universes. Channel it wisely.',
 
     // Compatibility
     compatibility: {
-      best: ['Leo', 'Sagittarius', 'Gemini', 'Aquarius'],
-      good: ['Aries', 'Libra'],
-      challenging: ['Cancer', 'Capricorn', 'Virgo'],
+      best: ['Simha', 'Dhanu', 'Mithuna', 'Kumbha'],
+      good: ['Mesha', 'Tula'],
+      challenging: ['Karka', 'Makara', 'Kanya'],
     },
 
     compatibilityDetails: {
-      Leo: { score: 95, description: 'A blazing inferno of passion and mutual admiration. Together you conquer worlds.' },
-      Sagittarius: { score: 93, description: 'Adventure partners who fuel each other\'s wanderlust and philosophical fire.' },
-      Gemini: { score: 88, description: 'Electric chemistry with endless conversation and spontaneous adventures.' },
-      Aquarius: { score: 85, description: 'Revolutionary partners who challenge each other to grow beyond limits.' },
-      Aries: { score: 80, description: 'Double fire means double passion, but watch out for power struggles.' },
-      Libra: { score: 75, description: 'Opposites attract - your fire balanced by their air creates a mesmerizing dance.' },
-      Cancer: { score: 45, description: 'Your fire can overwhelm their water. Requires patience and understanding.' },
-      Capricorn: { score: 50, description: 'Both are cardinal signs fighting for control. Compromise is the key.' },
+      Simha: { score: 95, description: 'A blazing inferno of passion and mutual admiration. Two Agni Rashis conquering worlds together.' },
+      Dhanu: { score: 93, description: 'Adventure partners who fuel each other\'s wanderlust and philosophical fire.' },
+      Mithuna: { score: 88, description: 'Electric chemistry with endless conversation and spontaneous adventures.' },
+      Kumbha: { score: 85, description: 'Revolutionary partners who challenge each other to grow beyond limits.' },
+      Mesha: { score: 80, description: 'Double fire means double passion, but watch out for power struggles.' },
+      Tula: { score: 75, description: 'Opposites attract — your fire balanced by their air creates a mesmerizing dance.' },
+      Karka: { score: 45, description: 'Your fire can overwhelm their water. Requires patience and understanding.' },
+      Makara: { score: 50, description: 'Both Chara Rashis fighting for control. Compromise is the key.' },
     },
 
     // Tarot & Mystical
     tarotCard: 'The Emperor',
     tarotDescription: 'Represents authority, structure, and the power to build empires from vision.',
     bodyPart: 'Head & Face',
-    house: 'First House - Self & Identity',
-
-    // Yearly themes
+    house: 'First Bhava - Self & Identity',
     yearlyTheme: 'A year of bold beginnings and courageous leaps of faith.',
   },
 
-  taurus: {
-    id: 'taurus',
+  vrishabha: {
+    id: 'vrishabha',
+    westernId: 'taurus',
     symbol: '♉',
-    name: 'Taurus',
+    name: 'Vrishabha',
+    westernName: 'Taurus',
+    hindiName: 'वृषभ',
     latinName: 'Taurus',
     dates: 'April 20 - May 20',
-    startMonth: 4,
-    startDay: 20,
-    endMonth: 5,
-    endDay: 20,
-    season: 'Spring',
+    nameLetters: 'B, V, U | ब, व, उ',
+    nameLettersDetailed: 'Ee, U, E, O, Vaa, Vee, Vu, Ve, Vo',
+    startMonth: 4, startDay: 20, endMonth: 5, endDay: 20,
+    season: 'Vasant (Spring)',
 
-    element: 'Earth',
-    elementIcon: '🌍',
-    elementType: 'earth',
-    quality: 'Fixed',
-    polarity: 'Negative (Yin)',
+    element: 'Prithvi (Earth)', elementIcon: '🌍', elementType: 'earth',
+    quality: 'Sthira (Fixed)', polarity: 'Negative (Yin)', vedicGuna: 'Rajas',
 
-    rulingPlanet: 'Venus',
-    rulingPlanetSymbol: '♀',
-    planetDescription: 'Venus blesses you with love for beauty, luxury, and sensual pleasures',
-    decanRulers: ['Venus', 'Mercury', 'Saturn'],
-    exaltedPlanet: 'Moon',
-    detrimentPlanet: 'Mars/Pluto',
-    fallPlanet: 'Uranus',
+    rulingPlanet: 'Shukra (Venus)', rulingPlanetSymbol: '♀',
+    planetDescription: 'Shukra blesses you with love for beauty, luxury, and sensual pleasures',
+    decanRulers: ['Shukra (Venus)', 'Budh (Mercury)', 'Shani (Saturn)'],
+    exaltedPlanet: 'Chandra (Moon)', detrimentPlanet: 'Mangal (Mars)',
+    fallPlanet: 'Rahu', nakshatras: ['Krittika (2-4 pada)', 'Rohini', 'Mrigashira (1-2 pada)'],
 
-    luckyNumbers: [2, 6, 9, 12, 24],
-    luckyColor: 'Green',
+    luckyNumbers: [2, 6, 9, 12, 24], luckyColor: 'Hara (Green)',
     luckyColors: ['#2ecc71', '#55efc4', '#27ae60', '#00b894'],
-    luckyGem: 'Emerald',
-    luckyGemEmoji: '💚',
-    luckyFlower: 'Rose',
-    luckyFlowerEmoji: '🌹',
-    luckyDay: 'Friday',
-    luckyMetal: 'Copper',
-    luckyAnimal: 'Bull',
-    luckyAnimalEmoji: '🐂',
+    luckyGem: 'Heera (Diamond)', luckyGemEmoji: '💎',
+    luckyFlower: 'Gulab (Rose)', luckyFlowerEmoji: '🌹',
+    luckyDay: 'Shukravar (Friday)', luckyMetal: 'Tamba (Copper)',
+    luckyAnimal: 'Bail (Bull)', luckyAnimalEmoji: '🐂',
+    luckyDirection: 'Dakshin (South)', luckyDeity: 'Goddess Lakshmi',
 
-    personality: 'Steadfast, sensual, and magnificently grounded, Taurus embodies the enduring strength of the earth itself. You possess an innate appreciation for beauty, comfort, and the finer things in life that goes beyond mere materialism — it\'s a deep connection to the physical world and its pleasures. Your determination is legendary; once you set your mind to something, nothing in the universe can move you from your path.',
+    personality: 'Steadfast, sensual, and magnificently grounded, Vrishabha embodies the enduring strength of Prithvi (Earth) itself. Ruled by Shukra (Venus), you possess an innate appreciation for beauty, comfort, and the finer things in life. Your determination is legendary; once you set your mind to something, nothing in the universe can move you from your path. The Vedic texts describe Vrishabha as the foundation upon which great things are built.',
 
     strengths: ['Reliable', 'Patient', 'Practical', 'Devoted', 'Responsible', 'Stable', 'Sensual', 'Artistic'],
     weaknesses: ['Stubborn', 'Possessive', 'Materialistic', 'Resistant to change', 'Self-indulgent', 'Inflexible'],
 
-    loveStyle: 'In romance, Taurus is the ultimate devoted partner who loves with an unwavering constancy that stands the test of time. You express love through physical touch, beautiful gifts, and creating a luxurious haven for your beloved. You crave stability and deep emotional security, and when you find your person, you hold on with gentle but unbreakable devotion.',
+    loveStyle: 'In romance, Vrishabha is the ultimate devoted partner who loves with unwavering constancy. You express love through physical touch, beautiful gifts, and creating a luxurious haven for your beloved.',
 
-    careerPath: 'With your natural eye for beauty and practical wisdom, Taurus thrives in careers involving finance, art, music, cooking, architecture, real estate, and luxury goods. Your patient determination makes you exceptional at building long-term wealth and creating lasting enterprises.',
+    careerPath: 'With your natural eye for beauty and practical wisdom, Vrishabha thrives in finance, art, music, cooking, architecture, real estate, and luxury goods.',
 
-    healthFocus: 'As the ruler of the throat and neck, Taurus should care for these areas and also watch for thyroid issues. Your love of food and comfort can lead to overindulgence. Balance your earthy pleasures with regular movement, especially activities in nature like hiking and gardening.',
+    healthFocus: 'As the ruler of the throat and neck, Vrishabha should care for these areas. Balance your earthy pleasures with regular movement in nature.',
 
-    spiritualPath: 'Your spiritual journey involves learning that true security comes from within, not from material possessions. Connecting with nature is your most powerful spiritual practice. Earth-based rituals, crystal work, and grounding meditations align perfectly with your Venus-ruled soul.',
+    spiritualPath: 'Your spiritual journey involves learning that true security comes from within. Earth-based rituals, crystal work, and Lakshmi mantras align with your Shukra-ruled soul.',
 
-    lifeLesson: 'Discovering that change is not your enemy but your greatest teacher, and that letting go can bring the deepest abundance.',
-
-    mantra: 'I am rooted in the abundant earth. My patience creates lasting beauty.',
+    lifeLesson: 'Discovering that change is not your enemy but your greatest teacher.',
+    mantra: 'ॐ शुं शुक्राय नमः | Om Shum Shukraya Namah',
+    vedanticWisdom: 'Like the sacred bull Nandi, your devotion and patience carry divine power.',
 
     compatibility: {
-      best: ['Virgo', 'Capricorn', 'Cancer', 'Pisces'],
-      good: ['Taurus', 'Scorpio'],
-      challenging: ['Leo', 'Aquarius', 'Sagittarius'],
+      best: ['Kanya', 'Makara', 'Karka', 'Meena'],
+      good: ['Vrishabha', 'Vrishchika'],
+      challenging: ['Simha', 'Kumbha', 'Dhanu'],
     },
 
     compatibilityDetails: {
-      Virgo: { score: 95, description: 'A harmonious earth connection built on mutual respect and practical love.' },
-      Capricorn: { score: 93, description: 'Empire builders together. Your combined determination is unstoppable.' },
-      Cancer: { score: 90, description: 'A nurturing, deeply emotional bond that creates the coziest love nest.' },
-      Pisces: { score: 87, description: 'Earth meets water in a beautifully creative and emotionally rich union.' },
-      Taurus: { score: 82, description: 'Double the luxury, double the stubbornness. A comfortable but potentially stagnant match.' },
-      Scorpio: { score: 78, description: 'Magnetic opposites with intense passion but equally intense power struggles.' },
-      Leo: { score: 48, description: 'Both fixed signs wanting to lead. Dramatic and challenging but never boring.' },
-      Aquarius: { score: 40, description: 'Your need for stability clashes with their need for freedom and change.' },
+      Kanya: { score: 95, description: 'A harmonious Prithvi connection built on mutual respect and practical love.' },
+      Makara: { score: 93, description: 'Empire builders together. Your combined determination is unstoppable.' },
+      Karka: { score: 90, description: 'A nurturing, deeply emotional bond that creates the coziest love nest.' },
+      Meena: { score: 87, description: 'Earth meets water in a beautifully creative and emotionally rich union.' },
+      Simha: { score: 48, description: 'Both Sthira Rashis wanting to lead. Dramatic and challenging.' },
+      Kumbha: { score: 40, description: 'Your need for stability clashes with their need for freedom.' },
     },
 
-    tarotCard: 'The Hierophant',
-    tarotDescription: 'Represents tradition, spiritual wisdom, and the bridge between heaven and earth.',
-    bodyPart: 'Throat & Neck',
-    house: 'Second House - Values & Possessions',
+    tarotCard: 'The Hierophant', bodyPart: 'Throat & Neck',
+    house: 'Second Bhava - Dhana & Values',
     yearlyTheme: 'A year of building foundations and enjoying the fruits of patience.',
   },
 
-  gemini: {
-    id: 'gemini',
+  mithuna: {
+    id: 'mithuna',
+    westernId: 'gemini',
     symbol: '♊',
-    name: 'Gemini',
-    latinName: 'Gemini',
+    name: 'Mithuna',
+    westernName: 'Gemini',
+    hindiName: 'मिथुन',
     dates: 'May 21 - June 20',
-    startMonth: 5,
-    startDay: 21,
-    endMonth: 6,
-    endDay: 20,
-    season: 'Spring/Summer',
+    nameLetters: 'K, Chh, Gh | क, छ, घ',
+    nameLettersDetailed: 'Kaa, Kee, Ku, Gha, Ing, Chha, Ke, Ko, Haa',
+    startMonth: 5, startDay: 21, endMonth: 6, endDay: 20,
+    season: 'Grishma (Summer)',
 
-    element: 'Air',
-    elementIcon: '💨',
-    elementType: 'air',
-    quality: 'Mutable',
-    polarity: 'Positive (Yang)',
+    element: 'Vayu (Air)', elementIcon: '💨', elementType: 'air',
+    quality: 'Dvisvabhava (Mutable)', polarity: 'Positive (Yang)', vedicGuna: 'Rajas',
 
-    rulingPlanet: 'Mercury',
-    rulingPlanetSymbol: '☿',
-    planetDescription: 'Mercury gifts you with quicksilver wit, communication mastery, and intellectual brilliance',
-    decanRulers: ['Mercury', 'Venus', 'Uranus'],
-    exaltedPlanet: 'North Node',
-    detrimentPlanet: 'Jupiter',
-    fallPlanet: 'South Node',
+    rulingPlanet: 'Budh (Mercury)', rulingPlanetSymbol: '☿',
+    planetDescription: 'Budh gifts you with quicksilver wit, communication mastery, and intellectual brilliance',
+    decanRulers: ['Budh (Mercury)', 'Shukra (Venus)', 'Shani (Saturn)'],
+    exaltedPlanet: 'Rahu', detrimentPlanet: 'Guru (Jupiter)',
+    fallPlanet: 'Ketu', nakshatras: ['Mrigashira (3-4 pada)', 'Ardra', 'Punarvasu (1-3 pada)'],
 
-    luckyNumbers: [3, 5, 7, 12, 23],
-    luckyColor: 'Yellow',
+    luckyNumbers: [3, 5, 7, 12, 23], luckyColor: 'Peela (Yellow)',
     luckyColors: ['#fdcb6e', '#ffeaa7', '#f1c40f', '#f39c12'],
-    luckyGem: 'Agate',
-    luckyGemEmoji: '🔶',
-    luckyFlower: 'Lavender',
-    luckyFlowerEmoji: '💜',
-    luckyDay: 'Wednesday',
-    luckyMetal: 'Mercury/Quicksilver',
-    luckyAnimal: 'Butterfly',
-    luckyAnimalEmoji: '🦋',
+    luckyGem: 'Panna (Emerald)', luckyGemEmoji: '💚',
+    luckyFlower: 'Lavender', luckyFlowerEmoji: '💜',
+    luckyDay: 'Budhvar (Wednesday)', luckyMetal: 'Paara (Mercury)',
+    luckyAnimal: 'Titli (Butterfly)', luckyAnimalEmoji: '🦋',
+    luckyDirection: 'Paschim (West)', luckyDeity: 'Lord Vishnu',
 
-    personality: 'Brilliantly versatile and endlessly curious, Gemini is the cosmic messenger who dances between worlds with effortless grace. Your mind moves at the speed of light, connecting dots that others cannot even see. The Twins symbol reflects your ability to see every situation from multiple perspectives simultaneously. You are the ultimate communicator, storyteller, and social butterfly of the zodiac.',
+    personality: 'Brilliantly versatile and endlessly curious, Mithuna is the cosmic messenger who dances between worlds with effortless grace. Ruled by Budh (Mercury), your mind moves at the speed of light. The Twins symbol reflects your ability to see every situation from multiple perspectives simultaneously.',
 
     strengths: ['Adaptable', 'Versatile', 'Communicative', 'Witty', 'Intellectual', 'Youthful', 'Curious', 'Quick-witted'],
     weaknesses: ['Inconsistent', 'Indecisive', 'Superficial', 'Nervous', 'Restless', 'Gossipy'],
 
-    loveStyle: 'In love, Gemini needs a partner who can keep up with their lightning-fast mind and ever-changing interests. You fall in love with someone\'s intellect first, their humor second, and everything else third. Conversation is your foreplay. You need constant mental stimulation and variety in your relationships.',
-
-    careerPath: 'Born communicators, Gemini excels in writing, journalism, teaching, sales, marketing, social media, translation, and any career that involves connecting people and ideas. Your versatility makes you a natural multitasker.',
-
-    healthFocus: 'Ruling the arms, hands, and lungs, Gemini should focus on respiratory health and hand/wrist care. Your nervous energy needs regular outlets. Yoga, dancing, and swimming help calm your active mind.',
-
-    spiritualPath: 'Your spiritual journey involves learning to quiet the endless chatter of your brilliant mind and discovering the wisdom in silence. Journaling, breathwork, and mantra meditation are powerful practices for you.',
-
-    lifeLesson: 'Understanding that depth is not the enemy of breadth, and that commitment to one path can reveal infinite universes.',
-
-    mantra: 'I am the bridge between worlds. My words weave reality into being.',
+    loveStyle: 'Mithuna needs a partner who can keep up with their lightning-fast mind. You fall in love with someone\'s intellect first. Conversation is your foreplay.',
+    careerPath: 'Born communicators, excelling in writing, journalism, teaching, sales, and social media.',
+    healthFocus: 'Ruling the arms, hands, and lungs. Yoga and swimming help calm your active mind.',
+    spiritualPath: 'Learning to quiet the mind through Budh mantras, journaling, and breathwork.',
+    lifeLesson: 'Understanding that depth is not the enemy of breadth.',
+    mantra: 'ॐ बुं बुधाय नमः | Om Bum Budhaya Namah',
+    vedanticWisdom: 'Like Budh (Mercury), you bridge heaven and earth through the power of communication.',
 
     compatibility: {
-      best: ['Libra', 'Aquarius', 'Aries', 'Leo'],
-      good: ['Gemini', 'Sagittarius'],
-      challenging: ['Virgo', 'Pisces', 'Scorpio'],
+      best: ['Tula', 'Kumbha', 'Mesha', 'Simha'],
+      good: ['Mithuna', 'Dhanu'],
+      challenging: ['Kanya', 'Meena', 'Vrishchika'],
     },
 
     compatibilityDetails: {
-      Libra: { score: 93, description: 'Intellectual soulmates who create an endless dialogue of beauty and ideas.' },
-      Aquarius: { score: 92, description: 'A meeting of brilliant minds that sparks revolution and innovation.' },
-      Aries: { score: 88, description: 'Fast-paced excitement with both signs racing to explore new territories.' },
-      Leo: { score: 85, description: 'A dazzling social power couple that commands attention wherever they go.' },
-      Sagittarius: { score: 78, description: 'Opposite sign magic - together you explore every corner of the universe.' },
-      Virgo: { score: 50, description: 'Both Mercury-ruled but different wavelengths. Miscommunication is common.' },
-      Pisces: { score: 45, description: 'Your logic vs. their intuition creates beautiful art but confusing relationships.' },
+      Tula: { score: 93, description: 'Intellectual soulmates creating an endless dialogue of beauty and ideas.' },
+      Kumbha: { score: 92, description: 'A meeting of brilliant minds that sparks revolution.' },
+      Mesha: { score: 88, description: 'Fast-paced excitement exploring new territories.' },
+      Simha: { score: 85, description: 'A dazzling social power couple.' },
     },
 
-    tarotCard: 'The Lovers',
-    tarotDescription: 'Represents choices, duality, and the union of opposing forces within the self.',
-    bodyPart: 'Arms, Hands & Lungs',
-    house: 'Third House - Communication & Learning',
+    tarotCard: 'The Lovers', bodyPart: 'Arms, Hands & Lungs',
+    house: 'Third Bhava - Communication & Siblings',
     yearlyTheme: 'A year of powerful connections and transformative conversations.',
   },
 
-  cancer: {
-    id: 'cancer',
+  karka: {
+    id: 'karka',
+    westernId: 'cancer',
     symbol: '♋',
-    name: 'Cancer',
-    latinName: 'Cancer',
+    name: 'Karka',
+    westernName: 'Cancer',
+    hindiName: 'कर्क',
     dates: 'June 21 - July 22',
-    startMonth: 6,
-    startDay: 21,
-    endMonth: 7,
-    endDay: 22,
-    season: 'Summer',
+    nameLetters: 'D, H | ड, ह',
+    nameLettersDetailed: 'Hee, Hu, He, Ho, Daa, Dee, Doo, De, Do',
+    startMonth: 6, startDay: 21, endMonth: 7, endDay: 22,
+    season: 'Grishma/Varsha (Summer/Monsoon)',
 
-    element: 'Water',
-    elementIcon: '🌊',
-    elementType: 'water',
-    quality: 'Cardinal',
-    polarity: 'Negative (Yin)',
+    element: 'Jal (Water)', elementIcon: '🌊', elementType: 'water',
+    quality: 'Chara (Cardinal)', polarity: 'Negative (Yin)', vedicGuna: 'Sattva',
 
-    rulingPlanet: 'Moon',
-    rulingPlanetSymbol: '☽',
-    planetDescription: 'The Moon gifts you with deep emotional intelligence, intuition, and nurturing power',
-    decanRulers: ['Moon', 'Pluto', 'Neptune'],
-    exaltedPlanet: 'Jupiter',
-    detrimentPlanet: 'Saturn',
-    fallPlanet: 'Mars',
+    rulingPlanet: 'Chandra (Moon)', rulingPlanetSymbol: '☽',
+    planetDescription: 'Chandra gifts you with deep emotional intelligence, intuition, and nurturing power',
+    decanRulers: ['Chandra (Moon)', 'Mangal/Pluto', 'Guru (Jupiter)'],
+    exaltedPlanet: 'Guru (Jupiter)', detrimentPlanet: 'Shani (Saturn)',
+    fallPlanet: 'Mangal (Mars)', nakshatras: ['Punarvasu (4th pada)', 'Pushya', 'Ashlesha'],
 
-    luckyNumbers: [2, 7, 11, 16, 25],
-    luckyColor: 'Silver',
+    luckyNumbers: [2, 7, 11, 16, 25], luckyColor: 'Chandi (Silver)',
     luckyColors: ['#dfe6e9', '#b2bec3', '#636e72', '#a4b0be'],
-    luckyGem: 'Pearl',
-    luckyGemEmoji: '🤍',
-    luckyFlower: 'White Rose',
-    luckyFlowerEmoji: '🤍',
-    luckyDay: 'Monday',
-    luckyMetal: 'Silver',
-    luckyAnimal: 'Crab',
-    luckyAnimalEmoji: '🦀',
+    luckyGem: 'Moti (Pearl)', luckyGemEmoji: '🤍',
+    luckyFlower: 'Safed Gulab (White Rose)', luckyFlowerEmoji: '🤍',
+    luckyDay: 'Somvar (Monday)', luckyMetal: 'Chandi (Silver)',
+    luckyAnimal: 'Kekda (Crab)', luckyAnimalEmoji: '🦀',
+    luckyDirection: 'Uttar (North)', luckyDeity: 'Goddess Parvati / Lord Shiva',
 
-    personality: 'Deeply intuitive and impossibly compassionate, Cancer carries the emotional wisdom of the ancient ocean within their soul. You feel everything with an intensity that would overwhelm most other signs, yet this extraordinary sensitivity is your greatest superpower. Like the moon that rules you, your moods may ebb and flow, but your devotion to those you love remains as constant as the tides.',
+    personality: 'Deeply intuitive and impossibly compassionate, Karka carries the emotional wisdom of the ancient ocean. Ruled by Chandra (Moon), your moods may ebb and flow, but your devotion to those you love remains as constant as the tides. The Vedic tradition honors Karka as the nurturing mother of the zodiac.',
 
     strengths: ['Intuitive', 'Loyal', 'Emotional', 'Sympathetic', 'Persuasive', 'Nurturing', 'Protective', 'Imaginative'],
     weaknesses: ['Moody', 'Insecure', 'Manipulative', 'Clingy', 'Pessimistic', 'Overly sensitive'],
 
-    loveStyle: 'Cancer loves with a depth that touches the very depths of the ocean. You create a sanctuary of emotional safety for your partner, nurturing them with home-cooked meals, tender touches, and unwavering emotional support. You need a partner who can provide the security you crave and appreciate your incredible gift of making any space feel like home.',
-
-    careerPath: 'Your natural nurturing instinct excels in healthcare, counseling, teaching, cooking, real estate, interior design, and childcare. Your emotional intelligence makes you an exceptional leader who truly cares about their team.',
-
-    healthFocus: 'Ruling the chest, breasts, and stomach, Cancer should pay attention to digestive health and emotional eating patterns. Water activities are deeply healing for you. Swimming, baths, and time near water restore your soul.',
-
-    spiritualPath: 'Your spiritual journey involves learning to protect your empathic gifts without building walls that isolate you from love. Moon rituals, water ceremonies, and ancestral healing are powerful practices for your soul.',
-
-    lifeLesson: 'Learning that vulnerability is strength, and that releasing the past creates space for miraculous new beginnings.',
-
-    mantra: 'I am the ocean of unconditional love. My sensitivity is my sacred gift.',
+    loveStyle: 'Karka loves with a depth that touches the very depths of the ocean. You create a sanctuary of emotional safety for your partner.',
+    careerPath: 'Your nurturing instinct excels in healthcare, counseling, teaching, cooking, and real estate.',
+    healthFocus: 'Ruling the chest and stomach. Water activities are deeply healing for you.',
+    spiritualPath: 'Moon rituals, Chandra mantras, and water ceremonies are powerful practices.',
+    lifeLesson: 'Learning that vulnerability is strength.',
+    mantra: 'ॐ सों सोमाय नमः | Om Som Somaya Namah',
+    vedanticWisdom: 'Like Chandra, your light reflects the divine source, illuminating the darkness for others.',
 
     compatibility: {
-      best: ['Scorpio', 'Pisces', 'Taurus', 'Virgo'],
-      good: ['Cancer', 'Capricorn'],
-      challenging: ['Aries', 'Libra', 'Aquarius'],
+      best: ['Vrishchika', 'Meena', 'Vrishabha', 'Kanya'],
+      good: ['Karka', 'Makara'],
+      challenging: ['Mesha', 'Tula', 'Kumbha'],
     },
 
     compatibilityDetails: {
-      Scorpio: { score: 97, description: 'The deepest emotional bond in the zodiac. Two water souls becoming one ocean.' },
-      Pisces: { score: 95, description: 'A dreamy, intuitive union that creates its own magical reality.' },
-      Taurus: { score: 90, description: 'Earth and water create a garden of Eden. Comfort, security, and deep love.' },
-      Virgo: { score: 88, description: 'A nurturing partnership where both signs care deeply for each other\'s wellbeing.' },
-      Capricorn: { score: 75, description: 'Opposite sign attraction. Your emotions balance their practicality.' },
-      Aries: { score: 42, description: 'Fire and water create steam. Intense but requires tremendous understanding.' },
-      Libra: { score: 48, description: 'Both cardinal signs with very different approaches to emotional expression.' },
+      Vrishchika: { score: 97, description: 'The deepest emotional bond. Two Jal souls becoming one ocean.' },
+      Meena: { score: 95, description: 'A dreamy, intuitive union that creates its own magical reality.' },
+      Vrishabha: { score: 90, description: 'Prithvi and Jal create a garden of Eden.' },
+      Kanya: { score: 88, description: 'A nurturing partnership of deep mutual care.' },
     },
 
-    tarotCard: 'The Chariot',
-    tarotDescription: 'Represents emotional willpower, determination, and victory through inner strength.',
-    bodyPart: 'Chest, Breasts & Stomach',
-    house: 'Fourth House - Home & Family',
+    tarotCard: 'The Chariot', bodyPart: 'Chest, Breasts & Stomach',
+    house: 'Fourth Bhava - Sukha & Family',
     yearlyTheme: 'A year of emotional healing and deepening family bonds.',
   },
 
-  leo: {
-    id: 'leo',
+  simha: {
+    id: 'simha',
+    westernId: 'leo',
     symbol: '♌',
-    name: 'Leo',
-    latinName: 'Leo',
+    name: 'Simha',
+    westernName: 'Leo',
+    hindiName: 'सिंह',
     dates: 'July 23 - August 22',
-    startMonth: 7,
-    startDay: 23,
-    endMonth: 8,
-    endDay: 22,
-    season: 'Summer',
+    nameLetters: 'M, T | म, ट',
+    nameLettersDetailed: 'Maa, Mee, Moo, Me, Mo, Taa, Tee, Too, Te',
+    startMonth: 7, startDay: 23, endMonth: 8, endDay: 22,
+    season: 'Grishma (Summer)',
 
-    element: 'Fire',
-    elementIcon: '🔥',
-    elementType: 'fire',
-    quality: 'Fixed',
-    polarity: 'Positive (Yang)',
+    element: 'Agni (Fire)', elementIcon: '🔥', elementType: 'fire',
+    quality: 'Sthira (Fixed)', polarity: 'Positive (Yang)', vedicGuna: 'Sattva',
 
-    rulingPlanet: 'Sun',
-    rulingPlanetSymbol: '☉',
-    planetDescription: 'The Sun centers the universe around your magnificent presence and creative brilliance',
-    decanRulers: ['Sun', 'Jupiter', 'Mars'],
-    exaltedPlanet: 'Neptune',
-    detrimentPlanet: 'Saturn/Uranus',
-    fallPlanet: 'Mercury',
+    rulingPlanet: 'Surya (Sun)', rulingPlanetSymbol: '☉',
+    planetDescription: 'Surya centers the universe around your magnificent presence and creative brilliance',
+    decanRulers: ['Surya (Sun)', 'Guru (Jupiter)', 'Mangal (Mars)'],
+    exaltedPlanet: 'None', detrimentPlanet: 'Shani (Saturn)',
+    fallPlanet: 'None', nakshatras: ['Magha', 'Purva Phalguni', 'Uttara Phalguni (1st pada)'],
 
-    luckyNumbers: [1, 3, 10, 19, 28],
-    luckyColor: 'Gold',
+    luckyNumbers: [1, 3, 10, 19, 28], luckyColor: 'Sona (Gold)',
     luckyColors: ['#ffd54f', '#ff8f00', '#f39c12', '#e67e22'],
-    luckyGem: 'Ruby',
-    luckyGemEmoji: '❤️',
-    luckyFlower: 'Sunflower',
-    luckyFlowerEmoji: '🌻',
-    luckyDay: 'Sunday',
-    luckyMetal: 'Gold',
-    luckyAnimal: 'Lion',
-    luckyAnimalEmoji: '🦁',
+    luckyGem: 'Manik (Ruby)', luckyGemEmoji: '❤️',
+    luckyFlower: 'Surajmukhi (Sunflower)', luckyFlowerEmoji: '🌻',
+    luckyDay: 'Ravivar (Sunday)', luckyMetal: 'Sona (Gold)',
+    luckyAnimal: 'Sinh (Lion)', luckyAnimalEmoji: '🦁',
+    luckyDirection: 'Poorv (East)', luckyDeity: 'Lord Surya / Lord Rama',
 
-    personality: 'Magnificent, generous, and radiantly charismatic, Leo is the cosmic sovereign who rules with a golden heart and an iron will. You were born to shine, and shine you do — lighting up every room with your magnetic presence and infectious joy. Your creative spirit is boundless, your loyalty is legendary, and your capacity for love is as vast as the sun that rules you.',
+    personality: 'Magnificent, generous, and radiantly charismatic, Simha is the cosmic sovereign ruled by Surya (Sun). Your creative spirit is boundless, your loyalty is legendary, and your capacity for love is as vast as the sun that rules you. In Vedic tradition, Simha represents the divine king — noble, protective, and inspiring.',
 
     strengths: ['Creative', 'Passionate', 'Generous', 'Warm-hearted', 'Cheerful', 'Humorous', 'Loyal', 'Charismatic'],
     weaknesses: ['Arrogant', 'Self-centered', 'Dramatic', 'Domineering', 'Stubborn', 'Attention-seeking'],
 
-    loveStyle: 'Leo loves with the full force of the sun — warm, generous, and utterly magnificent. You shower your partner with attention, grand romantic gestures, and unwavering loyalty. You need a partner who adores you publicly, appreciates your grand nature, and isn\'t afraid to share the spotlight with you.',
-
-    careerPath: 'Born for the stage of life, Leo excels in entertainment, performing arts, leadership, politics, luxury brands, event planning, and creative direction. Your natural charisma makes you magnetic in any role that puts you front and center.',
-
-    healthFocus: 'Ruling the heart and spine, Leo should prioritize cardiovascular health and back care. Your generous nature can lead to burnout if you give too much. Creative activities that bring joy are essential medicine for your lion soul.',
-
-    spiritualPath: 'Your spiritual journey involves learning that your light shines brightest when it illuminates others, not just yourself. Heart-centered meditation, creative visualization, and solar rituals align your soul with your cosmic purpose.',
-
-    lifeLesson: 'Discovering that true royalty serves the kingdom, and that your greatest legacy is the light you ignite in others.',
-
-    mantra: 'I am the radiant sun. My light transforms everything it touches.',
+    loveStyle: 'Simha loves with the full force of Surya — warm, generous, and utterly magnificent.',
+    careerPath: 'Born for leadership, excelling in entertainment, politics, luxury brands, and creative direction.',
+    healthFocus: 'Ruling the heart and spine. Creative activities are essential medicine.',
+    spiritualPath: 'Heart-centered meditation, Surya Namaskar, and solar mantras align your soul.',
+    lifeLesson: 'Discovering that true royalty serves the kingdom.',
+    mantra: 'ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः | Om Hraam Hreem Hraum Sah Suryaya Namah',
+    vedanticWisdom: 'You are Surya\'s child — your light is not borrowed, it emanates from your divine essence.',
 
     compatibility: {
-      best: ['Aries', 'Sagittarius', 'Gemini', 'Libra'],
-      good: ['Leo', 'Aquarius'],
-      challenging: ['Taurus', 'Scorpio', 'Capricorn'],
+      best: ['Mesha', 'Dhanu', 'Mithuna', 'Tula'],
+      good: ['Simha', 'Kumbha'],
+      challenging: ['Vrishabha', 'Vrishchika', 'Makara'],
     },
 
     compatibilityDetails: {
-      Aries: { score: 95, description: 'Two fires creating a spectacular blaze of passion and adventure.' },
-      Sagittarius: { score: 93, description: 'A grand adventure of laughter, philosophy, and boundless optimism.' },
-      Gemini: { score: 85, description: 'A sparkly, social power duo that never runs out of things to talk about.' },
-      Libra: { score: 88, description: 'A glamorous, harmonious match that creates beauty wherever they go.' },
-      Aquarius: { score: 72, description: 'Opposite signs with magnetic attraction but clashing egos and values.' },
-      Taurus: { score: 48, description: 'Both fixed signs creating an immovable clash of wills.' },
-      Scorpio: { score: 55, description: 'Intense power dynamics. Both want control but for very different reasons.' },
+      Mesha: { score: 95, description: 'Two Agni Rashis creating a spectacular blaze of passion.' },
+      Dhanu: { score: 93, description: 'A grand adventure of laughter and boundless optimism.' },
+      Tula: { score: 88, description: 'A glamorous, harmonious match that creates beauty.' },
+      Mithuna: { score: 85, description: 'A dazzling social power duo.' },
     },
 
-    tarotCard: 'Strength',
-    tarotDescription: 'Represents courage, inner power, and the gentle mastery of one\'s own nature.',
-    bodyPart: 'Heart & Spine',
-    house: 'Fifth House - Creativity & Romance',
+    tarotCard: 'Strength', bodyPart: 'Heart & Spine',
+    house: 'Fifth Bhava - Creativity & Progeny',
     yearlyTheme: 'A year of creative breakthroughs and heart-centered leadership.',
   },
 
-  virgo: {
-    id: 'virgo',
+  kanya: {
+    id: 'kanya',
+    westernId: 'virgo',
     symbol: '♍',
-    name: 'Virgo',
-    latinName: 'Virgo',
+    name: 'Kanya',
+    westernName: 'Virgo',
+    hindiName: 'कन्या',
     dates: 'August 23 - September 22',
-    startMonth: 8,
-    startDay: 23,
-    endMonth: 9,
-    endDay: 22,
-    season: 'Summer/Autumn',
+    nameLetters: 'P, Th, N | प, ठ, ण',
+    nameLettersDetailed: 'To, Paa, Pee, Poo, Sha, Na, Tha, Pe, Po',
+    startMonth: 8, startDay: 23, endMonth: 9, endDay: 22,
+    season: 'Sharad (Autumn)',
 
-    element: 'Earth',
-    elementIcon: '🌍',
-    elementType: 'earth',
-    quality: 'Mutable',
-    polarity: 'Negative (Yin)',
+    element: 'Prithvi (Earth)', elementIcon: '🌍', elementType: 'earth',
+    quality: 'Dvisvabhava (Mutable)', polarity: 'Negative (Yin)', vedicGuna: 'Tamas',
 
-    rulingPlanet: 'Mercury',
-    rulingPlanetSymbol: '☿',
-    planetDescription: 'Mercury grants you analytical precision, attention to detail, and service-oriented wisdom',
-    decanRulers: ['Mercury', 'Saturn', 'Venus'],
-    exaltedPlanet: 'Mercury',
-    detrimentPlanet: 'Jupiter/Neptune',
-    fallPlanet: 'Venus',
+    rulingPlanet: 'Budh (Mercury)', rulingPlanetSymbol: '☿',
+    planetDescription: 'Budh grants analytical precision and service-oriented wisdom',
+    decanRulers: ['Budh (Mercury)', 'Shani (Saturn)', 'Shukra (Venus)'],
+    nakshatras: ['Uttara Phalguni (2-4 pada)', 'Hasta', 'Chitra (1-2 pada)'],
 
-    luckyNumbers: [5, 14, 15, 23, 32],
-    luckyColor: 'Navy Blue',
+    luckyNumbers: [5, 14, 15, 23, 32], luckyColor: 'Neela (Navy Blue)',
     luckyColors: ['#00b894', '#55efc4', '#00cec9', '#81ecec'],
-    luckyGem: 'Sapphire',
-    luckyGemEmoji: '💙',
-    luckyFlower: 'Chrysanthemum',
-    luckyFlowerEmoji: '🌼',
-    luckyDay: 'Wednesday',
-    luckyMetal: 'Platinum',
-    luckyAnimal: 'Fox',
-    luckyAnimalEmoji: '🦊',
+    luckyGem: 'Panna (Emerald)', luckyGemEmoji: '💚',
+    luckyDay: 'Budhvar (Wednesday)', luckyMetal: 'Platinum',
+    luckyAnimal: 'Lomdi (Fox)', luckyAnimalEmoji: '🦊',
+    luckyDirection: 'Dakshin (South)', luckyDeity: 'Lord Vishnu / Goddess Saraswati',
 
-    personality: 'Brilliantly analytical and deeply compassionate, Virgo possesses the rare gift of seeing both the tiniest details and the grand pattern they create. You are the cosmic perfectionist, but not out of vanity — out of a genuine desire to make the world a better, more beautiful, and more efficient place. Your service-oriented heart drives everything you do.',
+    personality: 'Brilliantly analytical and deeply compassionate, Kanya possesses the rare gift of seeing both the tiniest details and the grand pattern. Ruled by Budh, you are the cosmic perfectionist who serves with genuine desire to make the world better.',
 
     strengths: ['Analytical', 'Kind', 'Hardworking', 'Practical', 'Methodical', 'Reliable', 'Detail-oriented', 'Humble'],
     weaknesses: ['Overthinking', 'Critical', 'Worry-prone', 'Shy', 'Perfectionist', 'Self-doubting'],
 
-    loveStyle: 'Virgo shows love through acts of service and meticulous attention to their partner\'s needs. You remember every preference, organize their chaos, and show devotion through practical care. You need a partner who appreciates your quiet dedication and doesn\'t mistake your reserved nature for coldness.',
-
-    careerPath: 'Your analytical brilliance excels in healthcare, research, editing, data analysis, nutrition, veterinary science, accounting, and quality assurance. Your attention to detail makes you indispensable in any field.',
-
-    healthFocus: 'Ruling the digestive system, Virgo should focus on gut health and nutrition. Your tendency to worry can manifest as digestive issues. Mindful eating, probiotics, and stress-management techniques are essential.',
-
-    spiritualPath: 'Your spiritual journey involves learning to extend the same compassion you give others to yourself. Self-acceptance is your greatest spiritual challenge and reward. Earth-based practices and healing arts call to your soul.',
-
-    lifeLesson: 'Understanding that imperfection is not failure, and that you deserve the same gentle care you so freely give to others.',
-
-    mantra: 'I am whole and worthy as I am. My service to others begins with self-love.',
+    loveStyle: 'Kanya shows love through acts of seva (service) and meticulous attention to partner\'s needs.',
+    careerPath: 'Excels in healthcare, research, editing, data analysis, and quality assurance.',
+    healthFocus: 'Ruling the digestive system. Mindful eating and probiotics are essential.',
+    spiritualPath: 'Self-acceptance is your greatest spiritual challenge. Budh mantras and healing arts call to your soul.',
+    lifeLesson: 'Understanding that imperfection is not failure.',
+    mantra: 'ॐ बुं बुधाय नमः | Om Bum Budhaya Namah',
+    vedanticWisdom: 'Your seva (service) is your sadhana (spiritual practice). In serving others, you find the Divine.',
 
     compatibility: {
-      best: ['Taurus', 'Capricorn', 'Cancer', 'Scorpio'],
-      good: ['Virgo', 'Pisces'],
-      challenging: ['Gemini', 'Sagittarius', 'Aries'],
+      best: ['Vrishabha', 'Makara', 'Karka', 'Vrishchika'],
+      good: ['Kanya', 'Meena'],
+      challenging: ['Mithuna', 'Dhanu', 'Mesha'],
     },
 
     compatibilityDetails: {
-      Taurus: { score: 95, description: 'Earth harmony at its finest. A peaceful, productive, and deeply loyal union.' },
-      Capricorn: { score: 93, description: 'Two earth signs building an empire of stability and mutual achievement.' },
-      Cancer: { score: 88, description: 'A nurturing bond where both signs care deeply and communicate through actions.' },
-      Scorpio: { score: 90, description: 'Deep analytical minds meet intense emotions. A transformative partnership.' },
-      Pisces: { score: 75, description: 'Opposite signs creating beautiful balance between logic and dreams.' },
-      Gemini: { score: 50, description: 'Both Mercury-ruled but expressing it differently. Can be mentally exhausting.' },
-      Sagittarius: { score: 45, description: 'Your caution vs. their recklessness creates constant friction.' },
+      Vrishabha: { score: 95, description: 'Prithvi harmony at its finest. Peaceful, productive, deeply loyal.' },
+      Makara: { score: 93, description: 'Two Prithvi Rashis building an empire of stability.' },
+      Karka: { score: 88, description: 'A nurturing bond of deep mutual care.' },
+      Vrishchika: { score: 90, description: 'Deep minds meet intense emotions. Transformative.' },
     },
 
-    tarotCard: 'The Hermit',
-    tarotDescription: 'Represents inner wisdom, solitude as strength, and the light that guides from within.',
-    bodyPart: 'Digestive System',
-    house: 'Sixth House - Health & Service',
-    yearlyTheme: 'A year of mastering your craft and discovering holistic wellness.',
+    tarotCard: 'The Hermit', bodyPart: 'Digestive System',
+    house: 'Sixth Bhava - Shatru & Service',
+    yearlyTheme: 'A year of mastering your craft and holistic wellness.',
   },
 
-  libra: {
-    id: 'libra',
+  tula: {
+    id: 'tula',
+    westernId: 'libra',
     symbol: '♎',
-    name: 'Libra',
-    latinName: 'Libra',
+    name: 'Tula',
+    westernName: 'Libra',
+    hindiName: 'तुला',
     dates: 'September 23 - October 22',
-    startMonth: 9,
-    startDay: 23,
-    endMonth: 10,
-    endDay: 22,
-    season: 'Autumn',
+    nameLetters: 'R, T | र, त',
+    nameLettersDetailed: 'Raa, Ree, Roo, Re, Ro, Taa, Tee, Too, Te',
+    startMonth: 9, startDay: 23, endMonth: 10, endDay: 22,
+    season: 'Sharad (Autumn)',
 
-    element: 'Air',
-    elementIcon: '💨',
-    elementType: 'air',
-    quality: 'Cardinal',
-    polarity: 'Positive (Yang)',
+    element: 'Vayu (Air)', elementIcon: '💨', elementType: 'air',
+    quality: 'Chara (Cardinal)', polarity: 'Positive (Yang)', vedicGuna: 'Rajas',
 
-    rulingPlanet: 'Venus',
-    rulingPlanetSymbol: '♀',
-    planetDescription: 'Venus bestows upon you an innate sense of beauty, harmony, and the art of relationships',
-    decanRulers: ['Venus', 'Uranus/Saturn', 'Mercury'],
-    exaltedPlanet: 'Saturn',
-    detrimentPlanet: 'Mars',
-    fallPlanet: 'Sun',
+    rulingPlanet: 'Shukra (Venus)', rulingPlanetSymbol: '♀',
+    planetDescription: 'Shukra bestows an innate sense of beauty, harmony, and the art of relationships',
+    nakshatras: ['Chitra (3-4 pada)', 'Swati', 'Vishakha (1-3 pada)'],
 
-    luckyNumbers: [4, 6, 13, 15, 24],
-    luckyColor: 'Pink',
+    luckyNumbers: [4, 6, 13, 15, 24], luckyColor: 'Gulabi (Pink)',
     luckyColors: ['#fd79a8', '#fab1a0', '#e17055', '#ff7675'],
-    luckyGem: 'Opal',
-    luckyGemEmoji: '🌈',
-    luckyFlower: 'Bluebells',
-    luckyFlowerEmoji: '💙',
-    luckyDay: 'Friday',
-    luckyMetal: 'Copper',
-    luckyAnimal: 'Swan',
-    luckyAnimalEmoji: '🦢',
+    luckyGem: 'Heera (Diamond)', luckyGemEmoji: '💎',
+    luckyDay: 'Shukravar (Friday)', luckyMetal: 'Tamba (Copper)',
+    luckyAnimal: 'Hans (Swan)', luckyAnimalEmoji: '🦢',
+    luckyDirection: 'Paschim (West)', luckyDeity: 'Goddess Lakshmi',
 
-    personality: 'Elegant, diplomatic, and endlessly charming, Libra is the cosmic artist who seeks to create harmony in every corner of existence. You possess an extraordinary ability to see beauty where others see chaos, and to find common ground where others see only conflict. Your natural grace and sense of justice make you the peacemaker of the zodiac.',
+    personality: 'Elegant, diplomatic, and endlessly charming, Tula is the cosmic artist who seeks harmony in every corner. Ruled by Shukra, you possess an extraordinary ability to see beauty and find common ground. The Vedic tradition sees Tula as the divine balance — Dharma in action.',
 
     strengths: ['Diplomatic', 'Fair-minded', 'Social', 'Cooperative', 'Gracious', 'Artistic', 'Charming', 'Idealistic'],
-    weaknesses: ['Indecisive', 'Non-confrontational', 'Self-pitying', 'People-pleasing', 'Superficial', 'Dependent'],
+    weaknesses: ['Indecisive', 'Non-confrontational', 'Self-pitying', 'People-pleasing', 'Superficial'],
 
-    loveStyle: 'Libra is the sign most in love with love itself. You seek a partner who is your equal in every way — intellectually, aesthetically, and emotionally. Romance is an art form to you, and you create the most beautiful, harmonious relationships in the zodiac. However, your fear of conflict can lead to suppressing your true feelings.',
-
-    careerPath: 'Your Venus-ruled nature excels in law, diplomacy, art, fashion, interior design, event planning, counseling, and public relations. Any career that requires grace, beauty, or mediation is perfect for you.',
-
-    healthFocus: 'Ruling the kidneys and lower back, Libra should focus on kidney health and maintaining balance in all things. Your tendency to avoid stress by pleasing others can create internal tension. Balance is truly your medicine.',
-
-    spiritualPath: 'Your spiritual journey involves finding balance between pleasing others and honoring your own truth. Learning to say "no" is a sacred practice for you. Beauty rituals, art meditation, and heart-opening practices serve your soul.',
-
-    lifeLesson: 'Discovering that true harmony begins within, and that standing for justice sometimes requires beautiful courage.',
-
-    mantra: 'I create harmony by first being true to myself. My beauty reflects inner balance.',
+    loveStyle: 'Tula is the sign most in love with love itself. You seek a partner who is your equal in every way.',
+    careerPath: 'Excels in law, diplomacy, art, fashion, interior design, and public relations.',
+    healthFocus: 'Ruling the kidneys and lower back. Balance is your medicine.',
+    spiritualPath: 'Finding balance between pleasing others and honoring your own truth. Shukra mantras serve your soul.',
+    lifeLesson: 'Discovering that true harmony begins within.',
+    mantra: 'ॐ शुं शुक्राय नमः | Om Shum Shukraya Namah',
+    vedanticWisdom: 'You are the divine scales — where dharma and karma find their perfect balance.',
 
     compatibility: {
-      best: ['Gemini', 'Aquarius', 'Leo', 'Sagittarius'],
-      good: ['Libra', 'Aries'],
-      challenging: ['Cancer', 'Capricorn', 'Virgo'],
+      best: ['Mithuna', 'Kumbha', 'Simha', 'Dhanu'],
+      good: ['Tula', 'Mesha'],
+      challenging: ['Karka', 'Makara', 'Kanya'],
     },
 
     compatibilityDetails: {
-      Gemini: { score: 93, description: 'Air sign perfection. Endless conversation, social adventures, and intellectual bliss.' },
-      Aquarius: { score: 90, description: 'A visionary partnership that dreams big and fights for justice together.' },
-      Leo: { score: 88, description: 'A glamorous, warm partnership that lights up every social gathering.' },
-      Sagittarius: { score: 85, description: 'An optimistic, adventurous couple that brings out the best in each other.' },
-      Aries: { score: 75, description: 'Magnetic opposite attraction. Your grace balances their fire beautifully.' },
-      Cancer: { score: 48, description: 'Emotional vs. intellectual approaches to life create misunderstandings.' },
-      Capricorn: { score: 50, description: 'Your social butterfly vs. their workaholic nature needs compromise.' },
+      Mithuna: { score: 93, description: 'Vayu sign perfection. Endless conversation and intellectual bliss.' },
+      Kumbha: { score: 90, description: 'A visionary partnership fighting for justice together.' },
+      Simha: { score: 88, description: 'A glamorous, warm partnership lighting up every gathering.' },
+      Dhanu: { score: 85, description: 'An optimistic, adventurous couple.' },
     },
 
-    tarotCard: 'Justice',
-    tarotDescription: 'Represents fairness, truth, and the cosmic law of cause and effect.',
-    bodyPart: 'Kidneys & Lower Back',
-    house: 'Seventh House - Partnerships & Marriage',
-    yearlyTheme: 'A year of finding balance and attracting beautiful partnerships.',
+    tarotCard: 'Justice', bodyPart: 'Kidneys & Lower Back',
+    house: 'Seventh Bhava - Partnerships & Marriage',
+    yearlyTheme: 'A year of finding balance and attracting partnerships.',
   },
 
-  scorpio: {
-    id: 'scorpio',
+  vrishchika: {
+    id: 'vrishchika',
+    westernId: 'scorpio',
     symbol: '♏',
-    name: 'Scorpio',
-    latinName: 'Scorpius',
+    name: 'Vrishchika',
+    westernName: 'Scorpio',
+    hindiName: 'वृश्चिक',
     dates: 'October 23 - November 21',
-    startMonth: 10,
-    startDay: 23,
-    endMonth: 11,
-    endDay: 21,
-    season: 'Autumn',
+    nameLetters: 'N, Y | न, य',
+    nameLettersDetailed: 'To, Naa, Nee, Noo, Ne, No, Yaa, Yee, Yu',
+    startMonth: 10, startDay: 23, endMonth: 11, endDay: 21,
+    season: 'Sharad/Hemant (Autumn/Winter)',
 
-    element: 'Water',
-    elementIcon: '🌊',
-    elementType: 'water',
-    quality: 'Fixed',
-    polarity: 'Negative (Yin)',
+    element: 'Jal (Water)', elementIcon: '🌊', elementType: 'water',
+    quality: 'Sthira (Fixed)', polarity: 'Negative (Yin)', vedicGuna: 'Tamas',
 
-    rulingPlanet: 'Pluto & Mars',
-    rulingPlanetSymbol: '♇',
-    planetDescription: 'Pluto and Mars grant you transformative power, magnetic intensity, and psychic depth',
-    decanRulers: ['Pluto', 'Neptune', 'Moon'],
-    exaltedPlanet: 'Uranus',
-    detrimentPlanet: 'Venus',
-    fallPlanet: 'Moon',
+    rulingPlanet: 'Mangal (Mars) & Ketu',
+    rulingPlanetSymbol: '♂',
+    planetDescription: 'Mangal and Ketu grant transformative power and psychic depth',
+    nakshatras: ['Vishakha (4th pada)', 'Anuradha', 'Jyeshtha'],
 
-    luckyNumbers: [8, 11, 18, 22, 29],
-    luckyColor: 'Crimson',
+    luckyNumbers: [8, 11, 18, 22, 29], luckyColor: 'Mehrun (Crimson)',
     luckyColors: ['#d63031', '#ff7675', '#e17055', '#6c5ce7'],
-    luckyGem: 'Topaz',
-    luckyGemEmoji: '🔴',
-    luckyFlower: 'Chrysanthemum',
-    luckyFlowerEmoji: '🌺',
-    luckyDay: 'Tuesday',
-    luckyMetal: 'Plutonium/Steel',
-    luckyAnimal: 'Phoenix',
-    luckyAnimalEmoji: '🦅',
+    luckyGem: 'Moonga (Red Coral)', luckyGemEmoji: '🔴',
+    luckyDay: 'Mangalvar (Tuesday)', luckyMetal: 'Loha (Steel)',
+    luckyAnimal: 'Garud (Eagle/Phoenix)', luckyAnimalEmoji: '🦅',
+    luckyDirection: 'Uttar (North)', luckyDeity: 'Lord Hanuman / Lord Kartikeya',
 
-    personality: 'Intensely powerful, mysteriously magnetic, and profoundly transformative, Scorpio is the cosmic alchemist who turns darkness into gold. You possess an emotional depth and psychological insight that borders on the supernatural. Your gaze penetrates masks and pretenses, seeing the raw truth beneath every surface. You are feared and revered in equal measure.',
+    personality: 'Intensely powerful, mysteriously magnetic, and profoundly transformative, Vrishchika is the cosmic alchemist. Ruled by Mangal and Ketu, you possess emotional depth and psychological insight that borders on the supernatural. Vedic texts describe Vrishchika as the sign of moksha — spiritual liberation through transformation.',
 
     strengths: ['Passionate', 'Resourceful', 'Brave', 'Strategic', 'Loyal', 'Focused', 'Perceptive', 'Transformative'],
     weaknesses: ['Jealous', 'Secretive', 'Obsessive', 'Vindictive', 'Controlling', 'Suspicious'],
 
-    loveStyle: 'Scorpio loves with an intensity that can be both intoxicating and overwhelming. When you give your heart, you give it completely — demanding the same total surrender in return. Your passion runs deeper than any ocean, and your loyalty is absolute. Betrayal, however, is the one thing a Scorpio will never forgive.',
-
-    careerPath: 'Your penetrating insight excels in psychology, research, investigation, surgery, finance, forensics, occult studies, and crisis management. You thrive in any role that requires going beneath the surface.',
-
-    healthFocus: 'Ruling the reproductive system and transformation, Scorpio should focus on hormonal health and emotional detoxification. Your intense emotions need regular release. Therapy, journaling, and transformative practices are essential.',
-
-    spiritualPath: 'Your spiritual journey is death and rebirth — the eternal cycle of transformation. Shadow work, past-life regression, and deep meditation are your sacred practices. You are naturally drawn to the mysteries that others fear.',
-
-    lifeLesson: 'Learning that true power lies not in control but in surrender, and that forgiveness is the ultimate transformation.',
-
-    mantra: 'I rise from the ashes transformed. My depth is my infinite power.',
+    loveStyle: 'Vrishchika loves with an intensity that can be both intoxicating and overwhelming.',
+    careerPath: 'Excels in psychology, research, investigation, surgery, and crisis management.',
+    healthFocus: 'Ruling the reproductive system. Emotional detoxification is essential.',
+    spiritualPath: 'Shadow work, Mangal mantras, and deep meditation are your sacred practices.',
+    lifeLesson: 'True power lies not in control but in surrender.',
+    mantra: 'ॐ अं अंगारकाय नमः | Om Ang Angarakaya Namah',
+    vedanticWisdom: 'Like the phoenix, your destruction is always followed by glorious rebirth.',
 
     compatibility: {
-      best: ['Cancer', 'Pisces', 'Virgo', 'Capricorn'],
-      good: ['Scorpio', 'Taurus'],
-      challenging: ['Leo', 'Aquarius', 'Gemini'],
+      best: ['Karka', 'Meena', 'Kanya', 'Makara'],
+      good: ['Vrishchika', 'Vrishabha'],
+      challenging: ['Simha', 'Kumbha', 'Mithuna'],
     },
 
     compatibilityDetails: {
-      Cancer: { score: 97, description: 'The most emotionally profound bond in the zodiac. Soul-deep connection.' },
-      Pisces: { score: 95, description: 'Two psychics in love. A mystical, transcendent, deeply spiritual union.' },
-      Virgo: { score: 90, description: 'Deep minds meeting deep hearts. An analytically passionate partnership.' },
-      Capricorn: { score: 88, description: 'Power couple energy. Together you can move mountains and build empires.' },
-      Taurus: { score: 78, description: 'Magnetic opposite attraction. Sensual and intense but with power struggles.' },
-      Leo: { score: 55, description: 'Two fixed signs in a battle of wills. Explosive passion but volatile dynamics.' },
-      Aquarius: { score: 42, description: 'Your emotional depth vs. their intellectual detachment creates a deep divide.' },
+      Karka: { score: 97, description: 'The most emotionally profound bond. Soul-deep Jal connection.' },
+      Meena: { score: 95, description: 'Two psychics in love. Mystical and transcendent.' },
+      Kanya: { score: 90, description: 'Deep minds meeting deep hearts.' },
+      Makara: { score: 88, description: 'Power couple energy. Moving mountains together.' },
     },
 
-    tarotCard: 'Death',
-    tarotDescription: 'Represents transformation, endings that birth new beginnings, and the eternal cycle.',
-    bodyPart: 'Reproductive System',
-    house: 'Eighth House - Transformation & Shared Resources',
-    yearlyTheme: 'A year of profound transformation and reclaiming your power.',
+    tarotCard: 'Death (Transformation)', bodyPart: 'Reproductive System',
+    house: 'Eighth Bhava - Transformation & Moksha',
+    yearlyTheme: 'A year of profound transformation and reclaiming power.',
   },
 
-  sagittarius: {
-    id: 'sagittarius',
+  dhanu: {
+    id: 'dhanu',
+    westernId: 'sagittarius',
     symbol: '♐',
-    name: 'Sagittarius',
-    latinName: 'Sagittarius',
+    name: 'Dhanu',
+    westernName: 'Sagittarius',
+    hindiName: 'धनु',
     dates: 'November 22 - December 21',
-    startMonth: 11,
-    startDay: 22,
-    endMonth: 12,
-    endDay: 21,
-    season: 'Autumn/Winter',
+    nameLetters: 'Bh, Dh, Ph, Dha | भ, ध, फ, ढ',
+    nameLettersDetailed: 'Ye, Yo, Bhaa, Bhee, Bhoo, Dhaa, Phaa, Dha, Bhe',
+    startMonth: 11, startDay: 22, endMonth: 12, endDay: 21,
+    season: 'Hemant (Early Winter)',
 
-    element: 'Fire',
-    elementIcon: '🔥',
-    elementType: 'fire',
-    quality: 'Mutable',
-    polarity: 'Positive (Yang)',
+    element: 'Agni (Fire)', elementIcon: '🔥', elementType: 'fire',
+    quality: 'Dvisvabhava (Mutable)', polarity: 'Positive (Yang)', vedicGuna: 'Sattva',
 
-    rulingPlanet: 'Jupiter',
-    rulingPlanetSymbol: '♃',
-    planetDescription: 'Jupiter blesses you with boundless optimism, philosophical wisdom, and expansive fortune',
-    decanRulers: ['Jupiter', 'Mars', 'Sun'],
-    exaltedPlanet: 'South Node',
-    detrimentPlanet: 'Mercury',
-    fallPlanet: 'North Node',
+    rulingPlanet: 'Guru (Jupiter)', rulingPlanetSymbol: '♃',
+    planetDescription: 'Guru blesses you with wisdom, optimism, and dharmic fortune',
+    nakshatras: ['Moola', 'Purva Ashadha', 'Uttara Ashadha (1st pada)'],
 
-    luckyNumbers: [3, 7, 9, 12, 21],
-    luckyColor: 'Purple',
+    luckyNumbers: [3, 7, 9, 12, 21], luckyColor: 'Baingani (Purple)',
     luckyColors: ['#a29bfe', '#6c5ce7', '#fd79a8', '#e056fd'],
-    luckyGem: 'Turquoise',
-    luckyGemEmoji: '💎',
-    luckyFlower: 'Carnation',
-    luckyFlowerEmoji: '🌸',
-    luckyDay: 'Thursday',
-    luckyMetal: 'Tin',
-    luckyAnimal: 'Horse',
-    luckyAnimalEmoji: '🐎',
+    luckyGem: 'Pukhraj (Yellow Sapphire)', luckyGemEmoji: '💛',
+    luckyDay: 'Guruvar (Thursday)', luckyMetal: 'Sona (Gold)',
+    luckyAnimal: 'Ghoda (Horse)', luckyAnimalEmoji: '🐎',
+    luckyDirection: 'Poorv (East)', luckyDeity: 'Lord Brahaspati / Lord Dattatreya',
 
-    personality: 'Wildly adventurous, infectiously optimistic, and philosophically brilliant, Sagittarius is the cosmic archer who aims their arrow at the stars and never misses. You possess an insatiable hunger for knowledge, experience, and truth that takes you to the far corners of the world — and the mind. Your laugh is medicine, your honesty is legendary, and your spirit is utterly untameable.',
+    personality: 'Wildly adventurous, infectiously optimistic, and philosophically brilliant, Dhanu is the cosmic archer who aims at the stars. Ruled by Guru (Jupiter), you possess an insatiable hunger for knowledge, experience, and truth. Vedic wisdom sees Dhanu as the eternal seeker of Dharma.',
 
     strengths: ['Optimistic', 'Adventurous', 'Philosophical', 'Generous', 'Honest', 'Humorous', 'Independent', 'Open-minded'],
     weaknesses: ['Tactless', 'Irresponsible', 'Restless', 'Commitment-phobic', 'Overconfident', 'Blunt'],
 
-    loveStyle: 'Sagittarius needs a love that feels like an adventure, not a cage. You fall for fellow travelers, philosophers, and free spirits who can keep up with your boundless energy. Freedom is non-negotiable in your relationships. The partner who gives you wings will have your heart forever.',
-
-    careerPath: 'Your expansive nature excels in travel, education, publishing, philosophy, law, outdoor recreation, foreign affairs, and motivational speaking. Any career that expands horizons and avoids routine is perfect.',
-
-    healthFocus: 'Ruling the hips, thighs, and liver, Sagittarius should focus on liver health and hip flexibility. Your adventurous nature can lead to accidents. Outdoor sports, horseback riding, and hiking are your ideal exercises.',
-
-    spiritualPath: 'Your spiritual journey is the eternal quest for truth and meaning. Every culture, philosophy, and spiritual tradition calls to your seeker soul. Your challenge is going deep enough in one practice before racing off to the next.',
-
-    lifeLesson: 'Understanding that freedom includes responsibility, and that the deepest adventure is the journey inward.',
-
-    mantra: 'I am the arrow of truth flying toward infinite horizons. My journey is my destination.',
+    loveStyle: 'Dhanu needs a love that feels like an adventure, not a cage. Freedom is non-negotiable.',
+    careerPath: 'Excels in travel, education, publishing, philosophy, law, and motivational speaking.',
+    healthFocus: 'Ruling the hips and liver. Outdoor sports and horseback riding are ideal.',
+    spiritualPath: 'The eternal quest for truth. Guru mantras and pilgrimage call to your seeker soul.',
+    lifeLesson: 'Freedom includes responsibility.',
+    mantra: 'ॐ बृं बृहस्पतये नमः | Om Brim Brihaspataye Namah',
+    vedanticWisdom: 'You are Guru\'s arrow — aimed at truth, flying toward infinite horizons of dharma.',
 
     compatibility: {
-      best: ['Aries', 'Leo', 'Libra', 'Aquarius'],
-      good: ['Sagittarius', 'Gemini'],
-      challenging: ['Virgo', 'Pisces', 'Taurus'],
+      best: ['Mesha', 'Simha', 'Tula', 'Kumbha'],
+      good: ['Dhanu', 'Mithuna'],
+      challenging: ['Kanya', 'Meena', 'Vrishabha'],
     },
 
     compatibilityDetails: {
-      Aries: { score: 93, description: 'Fire meets fire in an explosion of adventure, passion, and mutual inspiration.' },
-      Leo: { score: 93, description: 'The most fun couple in the zodiac. Laughter, drama, and grand adventures.' },
-      Libra: { score: 85, description: 'A beautiful balance of social grace and wild adventure.' },
-      Aquarius: { score: 88, description: 'Two freedom lovers who change the world together while respecting independence.' },
-      Gemini: { score: 78, description: 'Opposite signs creating an intellectual and experiential powerhouse.' },
-      Virgo: { score: 45, description: 'Your big-picture thinking vs. their detail focus creates frustration.' },
-      Pisces: { score: 50, description: 'Both mutable signs that struggle to anchor each other.' },
+      Mesha: { score: 93, description: 'Agni meets Agni in an explosion of adventure and passion.' },
+      Simha: { score: 93, description: 'The most fun couple. Laughter and grand adventures.' },
+      Kumbha: { score: 88, description: 'Freedom lovers exploring the universe without chains.' },
+      Tula: { score: 85, description: 'A beautiful balance of social grace and wild adventure.' },
     },
 
-    tarotCard: 'Temperance',
-    tarotDescription: 'Represents balance, patience, and the alchemical blending of extremes into gold.',
-    bodyPart: 'Hips & Thighs',
-    house: 'Ninth House - Philosophy & Higher Learning',
+    tarotCard: 'Temperance', bodyPart: 'Hips & Thighs',
+    house: 'Ninth Bhava - Dharma & Higher Learning',
     yearlyTheme: 'A year of epic adventures and philosophical breakthroughs.',
   },
 
-  capricorn: {
-    id: 'capricorn',
+  makara: {
+    id: 'makara',
+    westernId: 'capricorn',
     symbol: '♑',
-    name: 'Capricorn',
-    latinName: 'Capricornus',
+    name: 'Makara',
+    westernName: 'Capricorn',
+    hindiName: 'मकर',
     dates: 'December 22 - January 19',
-    startMonth: 12,
-    startDay: 22,
-    endMonth: 1,
-    endDay: 19,
-    season: 'Winter',
+    nameLetters: 'Kh, J | ख, ज',
+    nameLettersDetailed: 'Bho, Jaa, Jee, Khee, Khoo, Gaa, Gee',
+    startMonth: 12, startDay: 22, endMonth: 1, endDay: 19,
+    season: 'Shishir (Winter)',
 
-    element: 'Earth',
-    elementIcon: '🌍',
-    elementType: 'earth',
-    quality: 'Cardinal',
-    polarity: 'Negative (Yin)',
+    element: 'Prithvi (Earth)', elementIcon: '🌍', elementType: 'earth',
+    quality: 'Chara (Cardinal)', polarity: 'Negative (Yin)', vedicGuna: 'Tamas',
 
-    rulingPlanet: 'Saturn',
-    rulingPlanetSymbol: '♄',
-    planetDescription: 'Saturn gifts you with discipline, ambition, and the wisdom that comes through time and effort',
-    decanRulers: ['Saturn', 'Venus', 'Mercury'],
-    exaltedPlanet: 'Mars',
-    detrimentPlanet: 'Moon',
-    fallPlanet: 'Jupiter',
+    rulingPlanet: 'Shani (Saturn)', rulingPlanetSymbol: '♄',
+    planetDescription: 'Shani gifts you with discipline, ambition, and wisdom through time and effort',
+    nakshatras: ['Uttara Ashadha (2-4 pada)', 'Shravana', 'Dhanishta (1-2 pada)'],
 
-    luckyNumbers: [4, 8, 13, 22, 26],
-    luckyColor: 'Dark Brown',
+    luckyNumbers: [4, 8, 13, 22, 26], luckyColor: 'Bhura (Brown)',
     luckyColors: ['#636e72', '#b2bec3', '#2d3436', '#dfe6e9'],
-    luckyGem: 'Garnet',
-    luckyGemEmoji: '🔮',
-    luckyFlower: 'Pansy',
-    luckyFlowerEmoji: '🌸',
-    luckyDay: 'Saturday',
-    luckyMetal: 'Lead',
-    luckyAnimal: 'Goat',
-    luckyAnimalEmoji: '🐐',
+    luckyGem: 'Neelam (Blue Sapphire)', luckyGemEmoji: '💙',
+    luckyDay: 'Shanivar (Saturday)', luckyMetal: 'Loha (Iron)',
+    luckyAnimal: 'Bakri (Goat)', luckyAnimalEmoji: '🐐',
+    luckyDirection: 'Dakshin (South)', luckyDeity: 'Lord Shani Dev / Lord Hanuman',
 
-    personality: 'Masterfully ambitious, strategically brilliant, and profoundly resilient, Capricorn is the cosmic mountain goat who climbs every peak with unwavering determination. You possess the patience of centuries and the work ethic of a titan. Behind your serious exterior lies a surprisingly dry wit and a deeply caring heart that protects itself behind walls of achievement.',
+    personality: 'Masterfully ambitious, strategically brilliant, and profoundly resilient, Makara is the cosmic mountain goat. Ruled by Shani (Saturn), you possess the patience of centuries and the work ethic of a titan. Vedic tradition honors Makara as the builder of Dharmic empires.',
 
     strengths: ['Disciplined', 'Responsible', 'Self-controlled', 'Practical', 'Ambitious', 'Strategic', 'Patient', 'Resilient'],
     weaknesses: ['Pessimistic', 'Rigid', 'Workaholic', 'Cold', 'Unforgiving', 'Status-conscious'],
 
-    loveStyle: 'Capricorn approaches love with the same strategic patience applied to climbing corporate ladders. You take relationships seriously and don\'t waste time on casual flings. Your love deepens with time, like fine wine. The partner who earns your trust will discover a surprisingly romantic, deeply loyal, and passionately devoted companion.',
-
-    careerPath: 'Born executives and empire builders, Capricorn excels in business management, finance, politics, architecture, engineering, academia, and government. Your discipline and strategic mind make you destined for positions of authority.',
-
-    healthFocus: 'Ruling the bones, joints, and knees, Capricorn should focus on skeletal health and joint flexibility. Your workaholic tendencies can lead to chronic stress. Yoga, weight-bearing exercises, and regular rest are essential.',
-
-    spiritualPath: 'Your spiritual journey involves learning that you don\'t have to earn your worth through achievement. Meditation on self-acceptance, connecting with ancient traditions, and learning to play are sacred practices for your soul.',
-
-    lifeLesson: 'Understanding that vulnerability is not weakness, and that the highest peak is reached by those who know when to rest.',
-
-    mantra: 'I am the mountain — patient, powerful, and eternal. My legacy is written in the stars.',
+    loveStyle: 'Makara approaches love with strategic patience. Your love deepens with time, like fine wine.',
+    careerPath: 'Born executives excelling in business, finance, politics, architecture, and government.',
+    healthFocus: 'Ruling bones, joints, and knees. Yoga and regular rest are essential.',
+    spiritualPath: 'Meditation on self-acceptance and Shani mantras are sacred practices.',
+    lifeLesson: 'Vulnerability is not weakness.',
+    mantra: 'ॐ शं शनैश्चराय नमः | Om Sham Shanaischaraya Namah',
+    vedanticWisdom: 'Shani teaches through patience. Your karma is your greatest asset.',
 
     compatibility: {
-      best: ['Taurus', 'Virgo', 'Scorpio', 'Pisces'],
-      good: ['Capricorn', 'Cancer'],
-      challenging: ['Aries', 'Libra', 'Leo'],
+      best: ['Vrishabha', 'Kanya', 'Vrishchika', 'Meena'],
+      good: ['Makara', 'Karka'],
+      challenging: ['Mesha', 'Tula', 'Simha'],
     },
 
     compatibilityDetails: {
-      Taurus: { score: 93, description: 'Earth sign royalty. Building empires of comfort and lasting success together.' },
-      Virgo: { score: 93, description: 'A practical, supportive partnership where both signs thrive through dedication.' },
-      Scorpio: { score: 88, description: 'Power meets depth. An intensely ambitious and emotionally transformative bond.' },
-      Pisces: { score: 82, description: 'Earth grounds water beautifully. Your structure supports their dreams.' },
-      Cancer: { score: 75, description: 'Opposite signs creating a foundation of security and emotional depth.' },
-      Aries: { score: 50, description: 'Two cardinal leaders in a constant negotiation for control.' },
-      Libra: { score: 50, description: 'Your seriousness vs. their social lightness needs constant balancing.' },
+      Vrishabha: { score: 93, description: 'Prithvi royalty building empires of lasting success.' },
+      Kanya: { score: 93, description: 'A practical, supportive partnership of dedication.' },
+      Vrishchika: { score: 88, description: 'Power meets depth. Intensely ambitious bond.' },
+      Meena: { score: 82, description: 'Prithvi grounds Jal. Structure supports dreams.' },
     },
 
-    tarotCard: 'The Devil',
-    tarotDescription: 'Represents mastery over material world, ambition, and breaking free from limiting beliefs.',
-    bodyPart: 'Bones, Joints & Knees',
-    house: 'Tenth House - Career & Public Image',
+    tarotCard: 'The Devil', bodyPart: 'Bones, Joints & Knees',
+    house: 'Tenth Bhava - Karma & Public Image',
     yearlyTheme: 'A year of monumental achievement and hard-won recognition.',
   },
 
-  aquarius: {
-    id: 'aquarius',
+  kumbha: {
+    id: 'kumbha',
+    westernId: 'aquarius',
     symbol: '♒',
-    name: 'Aquarius',
-    latinName: 'Aquarius',
+    name: 'Kumbha',
+    westernName: 'Aquarius',
+    hindiName: 'कुंभ',
     dates: 'January 20 - February 18',
-    startMonth: 1,
-    startDay: 20,
-    endMonth: 2,
-    endDay: 18,
-    season: 'Winter',
+    nameLetters: 'G, S, Sh | ग, श, ष, स',
+    nameLettersDetailed: 'Gu, Ge, Go, Saa, See, Soo, Se, Daa',
+    startMonth: 1, startDay: 20, endMonth: 2, endDay: 18,
+    season: 'Shishir (Winter)',
 
-    element: 'Air',
-    elementIcon: '💨',
-    elementType: 'air',
-    quality: 'Fixed',
-    polarity: 'Positive (Yang)',
+    element: 'Vayu (Air)', elementIcon: '💨', elementType: 'air',
+    quality: 'Sthira (Fixed)', polarity: 'Positive (Yang)', vedicGuna: 'Tamas',
 
-    rulingPlanet: 'Uranus & Saturn',
-    rulingPlanetSymbol: '♅',
-    planetDescription: 'Uranus sparks your revolutionary genius, while Saturn grounds your vision in reality',
-    decanRulers: ['Uranus/Saturn', 'Mercury', 'Venus'],
-    exaltedPlanet: 'Neptune',
-    detrimentPlanet: 'Sun',
-    fallPlanet: 'Pluto',
+    rulingPlanet: 'Shani (Saturn) & Rahu',
+    rulingPlanetSymbol: '♄',
+    planetDescription: 'Shani grounds your vision while Rahu sparks revolutionary genius',
+    nakshatras: ['Dhanishta (3-4 pada)', 'Shatabhisha', 'Purva Bhadrapada (1-3 pada)'],
 
-    luckyNumbers: [4, 7, 11, 22, 29],
-    luckyColor: 'Electric Blue',
+    luckyNumbers: [4, 7, 11, 22, 29], luckyColor: 'Asmani (Electric Blue)',
     luckyColors: ['#74b9ff', '#0984e3', '#6c5ce7', '#a29bfe'],
-    luckyGem: 'Amethyst',
-    luckyGemEmoji: '💜',
-    luckyFlower: 'Orchid',
-    luckyFlowerEmoji: '🌸',
-    luckyDay: 'Saturday',
-    luckyMetal: 'Uranium/Aluminum',
-    luckyAnimal: 'Eagle',
-    luckyAnimalEmoji: '🦅',
+    luckyGem: 'Neelam (Blue Sapphire) / Gomed', luckyGemEmoji: '💜',
+    luckyDay: 'Shanivar (Saturday)', luckyMetal: 'Loha (Iron)',
+    luckyAnimal: 'Garud (Eagle)', luckyAnimalEmoji: '🦅',
+    luckyDirection: 'Paschim (West)', luckyDeity: 'Lord Shani Dev / Lord Vishnu',
 
-    personality: 'Brilliantly unconventional, fiercely independent, and cosmically humanitarian, Aquarius is the revolutionary visionary who sees the future before it arrives. You march to a beat that hasn\'t been invented yet, and your mind operates on frequencies that most humans can\'t perceive. You care deeply about humanity while often puzzling individual humans.',
+    personality: 'Brilliantly unconventional, fiercely independent, and cosmically humanitarian, Kumbha is the revolutionary visionary. Ruled by Shani and Rahu, you see the future before it arrives. Vedic tradition sees Kumbha as the water-bearer who pours divine knowledge upon humanity.',
 
     strengths: ['Innovative', 'Progressive', 'Independent', 'Humanitarian', 'Original', 'Intellectual', 'Visionary', 'Friendly'],
     weaknesses: ['Aloof', 'Rebellious', 'Emotionally detached', 'Unpredictable', 'Stubborn', 'Contrarian'],
 
-    loveStyle: 'Aquarius needs a love that respects their fierce independence and celebrates their uniqueness. You connect through intellect first and emotions second. Traditional romance often feels stifling to you. Your ideal partner is a best friend, intellectual equal, and fellow revolutionary.',
-
-    careerPath: 'Born innovators, Aquarius excels in technology, science, social justice, humanitarian work, astrology, aerospace, and any field that pushes the boundaries of what\'s possible.',
-
-    healthFocus: 'Ruling the circulatory system and ankles, Aquarius should focus on cardiovascular health. Your tendency to live in your head can disconnect you from your body. Grounding exercises and group activities balance your energy.',
-
-    spiritualPath: 'Your spiritual journey involves learning that emotions are not weaknesses but portals to deeper understanding. Community-based spiritual practices, energy healing, and cosmic consciousness exploration call to your soul.',
-
-    lifeLesson: 'Understanding that true revolution begins with the heart, and that belonging doesn\'t mean losing your individuality.',
-
-    mantra: 'I am the lightning bolt of change. My uniqueness is my gift to the world.',
+    loveStyle: 'Kumbha needs a love that respects fierce independence. You connect through intellect first.',
+    careerPath: 'Born innovators excelling in technology, science, social justice, and astrology.',
+    healthFocus: 'Ruling circulatory system and ankles. Grounding exercises balance your energy.',
+    spiritualPath: 'Community-based spiritual practices and Shani mantras call to your soul.',
+    lifeLesson: 'True revolution begins with the heart.',
+    mantra: 'ॐ शं शनैश्चराय नमः | Om Sham Shanaischaraya Namah',
+    vedanticWisdom: 'You are the Kumbha (pot) carrying the waters of divine wisdom for all of humanity.',
 
     compatibility: {
-      best: ['Gemini', 'Libra', 'Aries', 'Sagittarius'],
-      good: ['Aquarius', 'Leo'],
-      challenging: ['Taurus', 'Scorpio', 'Cancer'],
+      best: ['Mithuna', 'Tula', 'Mesha', 'Dhanu'],
+      good: ['Kumbha', 'Simha'],
+      challenging: ['Vrishabha', 'Vrishchika', 'Karka'],
     },
 
     compatibilityDetails: {
-      Gemini: { score: 92, description: 'Mental fireworks. Two brilliant minds creating a revolution of ideas.' },
-      Libra: { score: 90, description: 'Air sign harmony creating a beautiful vision for a better world.' },
-      Aries: { score: 85, description: 'Two independent spirits who respect each other\'s freedom and fire.' },
-      Sagittarius: { score: 88, description: 'Freedom lovers who explore the universe together without chains.' },
-      Leo: { score: 72, description: 'Magnetic opposites. Your detachment vs. their need for attention creates tension.' },
-      Taurus: { score: 40, description: 'Your need for change vs. their need for stability is fundamentally challenging.' },
-      Scorpio: { score: 42, description: 'Your emotional detachment triggers their deepest insecurities.' },
+      Mithuna: { score: 92, description: 'Mental fireworks. Two brilliant minds creating revolution.' },
+      Tula: { score: 90, description: 'Vayu harmony creating a vision for a better world.' },
+      Mesha: { score: 85, description: 'Two independent spirits respecting each other\'s freedom.' },
+      Dhanu: { score: 88, description: 'Freedom lovers exploring the universe without chains.' },
     },
 
-    tarotCard: 'The Star',
-    tarotDescription: 'Represents hope, inspiration, and the divine connection between humanity and the cosmos.',
-    bodyPart: 'Circulatory System & Ankles',
-    house: 'Eleventh House - Community & Future Vision',
+    tarotCard: 'The Star', bodyPart: 'Circulatory System & Ankles',
+    house: 'Eleventh Bhava - Labha & Community',
     yearlyTheme: 'A year of revolutionary breakthroughs and community building.',
   },
 
-  pisces: {
-    id: 'pisces',
+  meena: {
+    id: 'meena',
+    westernId: 'pisces',
     symbol: '♓',
-    name: 'Pisces',
-    latinName: 'Pisces',
+    name: 'Meena',
+    westernName: 'Pisces',
+    hindiName: 'मीन',
     dates: 'February 19 - March 20',
-    startMonth: 2,
-    startDay: 19,
-    endMonth: 3,
-    endDay: 20,
-    season: 'Winter/Spring',
+    nameLetters: 'D, Ch, Jh, Th | द, च, झ, थ',
+    nameLettersDetailed: 'Dee, Doo, Tha, Jha, Yna, De, Do, Cha, Chee',
+    startMonth: 2, startDay: 19, endMonth: 3, endDay: 20,
+    season: 'Shishir/Vasant (Late Winter/Spring)',
 
-    element: 'Water',
-    elementIcon: '🌊',
-    elementType: 'water',
-    quality: 'Mutable',
-    polarity: 'Negative (Yin)',
+    element: 'Jal (Water)', elementIcon: '🌊', elementType: 'water',
+    quality: 'Dvisvabhava (Mutable)', polarity: 'Negative (Yin)', vedicGuna: 'Sattva',
 
-    rulingPlanet: 'Neptune & Jupiter',
-    rulingPlanetSymbol: '♆',
-    planetDescription: 'Neptune dissolves boundaries between dreams and reality, gifting you otherworldly intuition',
-    decanRulers: ['Neptune/Jupiter', 'Moon', 'Pluto'],
-    exaltedPlanet: 'Venus',
-    detrimentPlanet: 'Mercury',
-    fallPlanet: 'Mercury',
+    rulingPlanet: 'Guru (Jupiter) & Ketu',
+    rulingPlanetSymbol: '♃',
+    planetDescription: 'Guru and Ketu dissolve boundaries between dreams and reality, gifting otherworldly intuition',
+    nakshatras: ['Purva Bhadrapada (4th pada)', 'Uttara Bhadrapada', 'Revati'],
 
-    luckyNumbers: [3, 9, 12, 15, 18],
-    luckyColor: 'Sea Green',
+    luckyNumbers: [3, 9, 12, 15, 18], luckyColor: 'Samudri Hara (Sea Green)',
     luckyColors: ['#00cec9', '#81ecec', '#55efc4', '#6c5ce7'],
-    luckyGem: 'Aquamarine',
-    luckyGemEmoji: '💎',
-    luckyFlower: 'Water Lily',
-    luckyFlowerEmoji: '🪷',
-    luckyDay: 'Thursday',
-    luckyMetal: 'Neptunium/Tin',
-    luckyAnimal: 'Fish',
-    luckyAnimalEmoji: '🐟',
+    luckyGem: 'Pukhraj (Yellow Sapphire)', luckyGemEmoji: '💛',
+    luckyDay: 'Guruvar (Thursday)', luckyMetal: 'Sona (Gold)',
+    luckyAnimal: 'Machli (Fish)', luckyAnimalEmoji: '🐟',
+    luckyDirection: 'Uttar (North)', luckyDeity: 'Lord Vishnu / Lord Krishna',
 
-    personality: 'Ethereally intuitive, boundlessly compassionate, and mystically creative, Pisces swims in the cosmic ocean of collective consciousness with the grace of a celestial dolphin. You feel the emotions of the entire universe flowing through your being. As the last sign of the zodiac, you carry the wisdom of all eleven signs before you, making you the most empathetic and spiritually evolved soul in the cosmic family.',
+    personality: 'Ethereally intuitive, boundlessly compassionate, and mystically creative, Meena swims in the cosmic ocean of collective consciousness. Ruled by Guru and Ketu, you feel the emotions of the entire universe. As the last Rashi, you carry the wisdom of all eleven before you — the most spiritually evolved soul in the cosmic family. Vedic tradition sees Meena as the gateway to Moksha.',
 
     strengths: ['Compassionate', 'Artistic', 'Intuitive', 'Gentle', 'Wise', 'Musical', 'Empathetic', 'Selfless'],
-    weaknesses: ['Escapist', 'Overly trusting', 'Victim mentality', 'Fearful', 'Boundaries issues', 'Addictive personality'],
+    weaknesses: ['Escapist', 'Overly trusting', 'Victim mentality', 'Fearful', 'Boundary issues', 'Addictive personality'],
 
-    loveStyle: 'Pisces loves with a transcendent, all-encompassing devotion that dissolves the boundaries between two souls into one. You romanticize everything and love through grand gestures of emotional and artistic expression. Your ideal partner must handle your sensitivity with care and never take advantage of your boundless generosity.',
-
-    careerPath: 'Your otherworldly creativity excels in music, film, photography, painting, poetry, spirituality, healing arts, marine biology, and social work. Any career that allows you to channel your vivid imagination is perfect.',
-
-    healthFocus: 'Ruling the feet and immune system, Pisces should focus on grounding practices and immune health. Your porous boundaries can absorb others\' energies. Regular energetic cleansing, foot massage, and time alone in water are essential.',
-
-    spiritualPath: 'You are the most naturally spiritual sign. Your challenge is staying grounded while honoring your psychic gifts. Dream work, mystical art, channeling, and water ceremonies are your sacred practices. You don\'t need to seek the divine — it lives within you.',
-
-    lifeLesson: 'Learning that healthy boundaries protect your gifts, and that you must fill your own cup before you can heal the ocean.',
-
-    mantra: 'I am one with the cosmic ocean. My compassion heals worlds, and I am worthy of that same love.',
+    loveStyle: 'Meena loves with a transcendent, all-encompassing devotion that dissolves boundaries between souls.',
+    careerPath: 'Excels in music, film, photography, painting, poetry, spirituality, and healing arts.',
+    healthFocus: 'Ruling feet and immune system. Water activities and energetic cleansing are essential.',
+    spiritualPath: 'You are the most naturally spiritual sign. Dream work, mystical art, and Guru mantras are sacred practices.',
+    lifeLesson: 'Healthy boundaries protect your gifts.',
+    mantra: 'ॐ बृं बृहस्पतये नमः | Om Brim Brihaspataye Namah',
+    vedanticWisdom: 'You are the cosmic ocean itself — infinite, compassionate, and containing all of creation within.',
 
     compatibility: {
-      best: ['Cancer', 'Scorpio', 'Taurus', 'Capricorn'],
-      good: ['Pisces', 'Virgo'],
-      challenging: ['Gemini', 'Sagittarius', 'Aquarius'],
+      best: ['Karka', 'Vrishchika', 'Vrishabha', 'Makara'],
+      good: ['Meena', 'Kanya'],
+      challenging: ['Mithuna', 'Dhanu', 'Kumbha'],
     },
 
     compatibilityDetails: {
-      Cancer: { score: 95, description: 'A fairy tale romance of two deeply emotional souls creating their own magical world.' },
-      Scorpio: { score: 95, description: 'The most psychically connected pair in the zodiac. Otherworldly intimacy.' },
-      Taurus: { score: 87, description: 'Earth grounds your ocean beautifully. A sensual, artistic, and deeply loving bond.' },
-      Capricorn: { score: 82, description: 'Your dreams need their structure. A complementary union of vision and discipline.' },
-      Virgo: { score: 75, description: 'Opposite signs finding balance between logic and magic, analysis and intuition.' },
-      Gemini: { score: 45, description: 'Your emotional depth vs. their mental agility creates beautiful art but confusing love.' },
-      Sagittarius: { score: 50, description: 'Both mutable and restless. Beautiful adventures but hard to anchor.' },
+      Karka: { score: 95, description: 'A fairy tale of two deeply emotional Jal souls creating magic.' },
+      Vrishchika: { score: 95, description: 'The most psychically connected pair. Otherworldly intimacy.' },
+      Vrishabha: { score: 87, description: 'Prithvi grounds your ocean beautifully. Sensual and deeply loving.' },
+      Makara: { score: 82, description: 'Your dreams need their structure. Vision meets discipline.' },
     },
 
-    tarotCard: 'The Moon',
-    tarotDescription: 'Represents dreams, intuition, the subconscious mind, and the mysteries hidden in moonlight.',
-    bodyPart: 'Feet & Immune System',
-    house: 'Twelfth House - Spirituality & the Subconscious',
+    tarotCard: 'The Moon', bodyPart: 'Feet & Immune System',
+    house: 'Twelfth Bhava - Moksha & the Subconscious',
     yearlyTheme: 'A year of spiritual awakening and creative transcendence.',
   },
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 🔮 RASHI DETECTION ENGINE — BY NAME (Jyotish Method)
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Determines the Vedic Rashi based on the first letter/syllable
+ * of the person's birth name (as per Jyotish Shastra)
+ *
+ * @param {string} firstName - The person's first name
+ * @returns {object|null} - The matched Rashi object or null
+ */
+export const getRashiByName = (firstName) => {
+  if (!firstName || typeof firstName !== 'string') return null
+
+  const name = firstName.trim().toLowerCase()
+  if (name.length === 0) return null
+
+  // Try matching longest syllable first (3 chars → 2 chars → 1 char)
+  for (let len = 3; len >= 1; len--) {
+    const syllable = name.substring(0, len)
+
+    for (const [rashiId, mapping] of Object.entries(RASHI_NAME_MAP)) {
+      // Check syllables first (most specific)
+      if (mapping.syllables.includes(syllable)) {
+        return ZODIAC_SIGNS[rashiId]
+      }
+    }
+  }
+
+  // Fallback: match by first character against primary letters
+  const firstChar = name.charAt(0)
+
+  for (const [rashiId, mapping] of Object.entries(RASHI_NAME_MAP)) {
+    if (mapping.primary.includes(firstChar)) {
+      return ZODIAC_SIGNS[rashiId]
+    }
+  }
+
+  // Handle special multi-character starting sounds
+  const specialPrefixes = [
+    { prefix: 'sh', rashi: 'kumbha' },
+    { prefix: 'ch', rashi: 'meena' },
+    { prefix: 'bh', rashi: 'dhanu' },
+    { prefix: 'dh', rashi: 'dhanu' },
+    { prefix: 'ph', rashi: 'dhanu' },
+    { prefix: 'kh', rashi: 'makara' },
+    { prefix: 'jh', rashi: 'meena' },
+    { prefix: 'th', rashi: 'meena' },
+    { prefix: 'gh', rashi: 'mithuna' },
+  ]
+
+  for (const { prefix, rashi } of specialPrefixes) {
+    if (name.startsWith(prefix)) {
+      return ZODIAC_SIGNS[rashi]
+    }
+  }
+
+  return null
+}
+
+/**
+ * Get Rashi by date of birth (Western method — kept as fallback)
+ */
+export const getRashiByDate = (day, month) => {
+  const dd = parseInt(day)
+  const mm = parseInt(month)
+  if (!dd || !mm) return null
+
+  const dateRanges = [
+    { id: 'makara', sm: 12, sd: 22, em: 1, ed: 19 },
+    { id: 'kumbha', sm: 1, sd: 20, em: 2, ed: 18 },
+    { id: 'meena', sm: 2, sd: 19, em: 3, ed: 20 },
+    { id: 'mesha', sm: 3, sd: 21, em: 4, ed: 19 },
+    { id: 'vrishabha', sm: 4, sd: 20, em: 5, ed: 20 },
+    { id: 'mithuna', sm: 5, sd: 21, em: 6, ed: 20 },
+    { id: 'karka', sm: 6, sd: 21, em: 7, ed: 22 },
+    { id: 'simha', sm: 7, sd: 23, em: 8, ed: 22 },
+    { id: 'kanya', sm: 8, sd: 23, em: 9, ed: 22 },
+    { id: 'tula', sm: 9, sd: 23, em: 10, ed: 22 },
+    { id: 'vrishchika', sm: 10, sd: 23, em: 11, ed: 21 },
+    { id: 'dhanu', sm: 11, sd: 22, em: 12, ed: 21 },
+  ]
+
+  for (const range of dateRanges) {
+    if (
+      (mm === range.sm && dd >= range.sd) ||
+      (mm === range.em && dd <= range.ed)
+    ) {
+      return ZODIAC_SIGNS[range.id]
+    }
+  }
+
+  return null
+}
+
+/**
+ * PRIMARY METHOD: Get Rashi using Jyotish name-based method
+ * Falls back to date-based if name doesn't match
+ */
+export const getJyotishRashi = (firstName, day, month) => {
+  // Try name-based first (authentic Jyotish method)
+  const nameRashi = getRashiByName(firstName)
+  if (nameRashi) return { rashi: nameRashi, method: 'name', confidence: 'high' }
+
+  // Fallback to date-based
+  const dateRashi = getRashiByDate(day, month)
+  if (dateRashi) return { rashi: dateRashi, method: 'date', confidence: 'medium' }
+
+  return null
+}
+
 // ─────────────────────────────────────────
-// Helper: Get sign by key
+// Helper: Get sign by key (supports both Vedic and Western IDs)
 // ─────────────────────────────────────────
-export const getZodiacSign = (signId) => ZODIAC_SIGNS[signId?.toLowerCase()]
+export const getZodiacSign = (signId) => {
+  if (!signId) return null
+  const id = signId.toLowerCase()
+
+  // Direct match
+  if (ZODIAC_SIGNS[id]) return ZODIAC_SIGNS[id]
+
+  // Search by westernId
+  return Object.values(ZODIAC_SIGNS).find(
+    (sign) => sign.westernId === id
+  ) || null
+}
 
 // ─────────────────────────────────────────
 // Helper: Get all signs as array
@@ -962,6 +1082,33 @@ export const getZodiacSign = (signId) => ZODIAC_SIGNS[signId?.toLowerCase()]
 export const getAllSigns = () => Object.values(ZODIAC_SIGNS)
 
 // ─────────────────────────────────────────
-// Helper: Get sign names
+// Helper: Get sign names (returns Vedic names)
 // ─────────────────────────────────────────
 export const getSignNames = () => Object.keys(ZODIAC_SIGNS)
+
+// ─────────────────────────────────────────
+// Helper: Get all name-to-rashi mappings
+// ─────────────────────────────────────────
+export const getNameRashiMap = () => RASHI_NAME_MAP
+
+// ─────────────────────────────────────────
+// Helper: Western ID to Vedic ID mapping
+// ─────────────────────────────────────────
+export const WESTERN_TO_VEDIC = {
+  aries: 'mesha',
+  taurus: 'vrishabha',
+  gemini: 'mithuna',
+  cancer: 'karka',
+  leo: 'simha',
+  virgo: 'kanya',
+  libra: 'tula',
+  scorpio: 'vrishchika',
+  sagittarius: 'dhanu',
+  capricorn: 'makara',
+  aquarius: 'kumbha',
+  pisces: 'meena',
+}
+
+export const VEDIC_TO_WESTERN = Object.fromEntries(
+  Object.entries(WESTERN_TO_VEDIC).map(([w, v]) => [v, w])
+)
