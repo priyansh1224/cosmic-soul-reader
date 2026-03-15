@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// 📝 SOUL INPUT FORM - Multi-Step Cosmic Form
+// 📝 SOUL INPUT FORM - Multi-Step Cosmic Form (Mobile Fixed)
 // ═══════════════════════════════════════════════════════════════════
 
 import { memo, useCallback, useState } from 'react'
@@ -41,12 +41,16 @@ const SoulInputForm = memo(() => {
 
   const { calculateReading } = useZodiacCalculator()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [direction, setDirection] = useState(1)
 
   // Handle field change
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target
-    updateFormData({ [name]: value })
-  }, [updateFormData])
+  const handleChange = useCallback(
+    (e) => {
+      const { name, value } = e.target
+      updateFormData({ [name]: value })
+    },
+    [updateFormData]
+  )
 
   // Validate and go next
   const handleNext = useCallback(() => {
@@ -88,8 +92,8 @@ const SoulInputForm = memo(() => {
 
   // Step transition variants
   const stepVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 300 : -300,
+    enter: (dir) => ({
+      x: dir > 0 ? 300 : -300,
       opacity: 0,
       scale: 0.9,
       filter: 'blur(10px)',
@@ -104,8 +108,8 @@ const SoulInputForm = memo(() => {
         ease: [0.23, 1, 0.32, 1],
       },
     },
-    exit: (direction) => ({
-      x: direction > 0 ? -300 : 300,
+    exit: (dir) => ({
+      x: dir > 0 ? -300 : 300,
       opacity: 0,
       scale: 0.9,
       filter: 'blur(10px)',
@@ -114,8 +118,6 @@ const SoulInputForm = memo(() => {
       },
     }),
   }
-
-  const [direction, setDirection] = useState(1)
 
   const goNext = () => {
     setDirection(1)
@@ -129,9 +131,19 @@ const SoulInputForm = memo(() => {
     handlePrev()
   }
 
+  // Build partner sign options once
+  const partnerSignOptions = Object.values(ZODIAC_SIGNS).map((sign) => ({
+    value: sign.id,
+    label: sign.name,
+    icon: sign.symbol,
+  }))
+
+  const isLastStep = currentStep >= totalSteps
+
   return (
     <motion.section
-      className="relative min-h-screen flex items-center justify-center py-20 px-4"
+      className="relative min-h-screen flex items-center justify-center 
+                 py-12 sm:py-20 px-3 sm:px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -144,18 +156,20 @@ const SoulInputForm = memo(() => {
         <LiquidGlassCard
           glowColor="aurora"
           tiltEnabled={false}
-          className="p-6 sm:p-8 md:p-10"
+          disableTilt
+          className="p-4 sm:p-6 md:p-8 lg:p-10"
         >
           {/* ─── PANEL HEADER ─── */}
           <motion.div
-            className="text-center mb-8"
+            className="text-center mb-6 sm:mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
             {/* Crystal Ball Icon */}
             <motion.div
-              className="mx-auto w-16 h-16 rounded-full mb-4 flex items-center justify-center relative"
+              className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full mb-3 sm:mb-4 
+                         flex items-center justify-center relative"
               animate={{
                 boxShadow: [
                   '0 0 20px rgba(124,58,237,0.3)',
@@ -165,21 +179,26 @@ const SoulInputForm = memo(() => {
               }}
               transition={{ duration: 4, repeat: Infinity }}
               style={{
-                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(124,58,237,0.3), rgba(236,72,153,0.2))',
+                background:
+                  'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(124,58,237,0.3), rgba(236,72,153,0.2))',
               }}
             >
-              <span className="text-2xl">🔮</span>
+              <span className="text-xl sm:text-2xl">🔮</span>
               <motion.div
-                className="absolute inset-[-4px] rounded-full border border-cosmic-purple-500/20"
+                className="absolute inset-[-4px] rounded-full border 
+                           border-cosmic-purple-500/20"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
               />
             </motion.div>
 
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-gradient-gold mb-2">
+            <h2
+              className="font-display text-xl sm:text-2xl md:text-3xl font-bold 
+                         text-gradient-gold mb-1 sm:mb-2"
+            >
               Enter Your Cosmic Details
             </h2>
-            <p className="font-body text-white/40 text-sm">
+            <p className="font-body text-white/40 text-xs sm:text-sm">
               Share your celestial coordinates to unlock your reading
             </p>
           </motion.div>
@@ -188,13 +207,13 @@ const SoulInputForm = memo(() => {
           <NeuralProgress
             currentStep={currentStep}
             totalSteps={totalSteps}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           />
 
           {/* ─── FORM STEPS ─── */}
-          <div className="relative min-h-[350px]">
+          <div className="relative min-h-[300px] sm:min-h-[350px]">
             <AnimatePresence mode="wait" custom={direction}>
-              {/* STEP 1: IDENTITY */}
+              {/* ════════════ STEP 1: IDENTITY ════════════ */}
               {currentStep === 1 && (
                 <motion.div
                   key="step1"
@@ -211,7 +230,7 @@ const SoulInputForm = memo(() => {
                     subtitle="Tell us who you are, cosmic traveler"
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <CosmicInput
                       label="First Name"
                       name="firstName"
@@ -248,7 +267,7 @@ const SoulInputForm = memo(() => {
                 </motion.div>
               )}
 
-              {/* STEP 2: BIRTH DATA */}
+              {/* ════════════ STEP 2: BIRTH DATA ════════════ */}
               {currentStep === 2 && (
                 <motion.div
                   key="step2"
@@ -296,7 +315,7 @@ const SoulInputForm = memo(() => {
                 </motion.div>
               )}
 
-              {/* STEP 3: SOUL INTENTION */}
+              {/* ════════════ STEP 3: SOUL INTENTION ════════════ */}
               {currentStep === 3 && (
                 <motion.div
                   key="step3"
@@ -305,7 +324,7 @@ const SoulInputForm = memo(() => {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="space-y-6"
+                  className="space-y-5 sm:space-y-6"
                 >
                   <StepHeader
                     icon="🔮"
@@ -334,7 +353,7 @@ const SoulInputForm = memo(() => {
                 </motion.div>
               )}
 
-              {/* STEP 4: RELATIONSHIPS */}
+              {/* ════════════ STEP 4: RELATIONSHIPS ════════════ */}
               {currentStep === 4 && (
                 <motion.div
                   key="step4"
@@ -343,7 +362,7 @@ const SoulInputForm = memo(() => {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="space-y-6"
+                  className="space-y-5 sm:space-y-6"
                 >
                   <StepHeader
                     icon="💫"
@@ -360,24 +379,23 @@ const SoulInputForm = memo(() => {
                     size="sm"
                   />
 
-                  <StardustSelect
-                    label="Partner's Zodiac Sign (Optional)"
-                    name="partnerSign"
-                    value={formData.partnerSign}
-                    onChange={handleChange}
-                    icon="💕"
-                    glowColor="pink"
-                    placeholder="Select partner's sign"
-                    options={Object.values(ZODIAC_SIGNS).map(sign => ({
-                      value: sign.id,
-                      label: sign.name,
-                      icon: sign.symbol,
-                    }))}
-                  />
-
-                  <p className="text-xs text-white/20 font-body text-center">
-                    Adding a partner's sign unlocks compatibility insights
-                  </p>
+                  {/* ── PARTNER SIGN with mobile-safe dropdown ── */}
+                  <div className="relative z-20">
+                    <StardustSelect
+                      label="Partner's Zodiac Sign"
+                      name="partnerSign"
+                      value={formData.partnerSign}
+                      onChange={handleChange}
+                      icon="💕"
+                      glowColor="pink"
+                      placeholder="Select partner's sign"
+                      options={partnerSignOptions}
+                      optional
+                    />
+                    <p className="text-xs text-white/20 font-body text-center mt-2">
+                      Adding a partner's sign unlocks compatibility insights
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -385,7 +403,14 @@ const SoulInputForm = memo(() => {
 
           {/* ─── NAVIGATION BUTTONS ─── */}
           <motion.div
-            className="flex items-center justify-between mt-8 pt-6"
+            className={cn(
+              'mt-6 sm:mt-8 pt-4 sm:pt-6',
+              'border-t border-white/[0.05]',
+              // Mobile: stack vertically on last step, row on other steps
+              isLastStep
+                ? 'flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:justify-between'
+                : 'flex flex-row items-center justify-between gap-3',
+            )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -397,31 +422,43 @@ const SoulInputForm = memo(() => {
               onClick={goPrev}
               icon={HiArrowLeft}
               iconPosition="left"
+              className={cn(
+                isLastStep && 'sm:flex-shrink-0',
+                !isLastStep && 'flex-shrink-0',
+              )}
             >
-              {currentStep === 1 ? 'Home' : 'Back'}
+              <span className="hidden sm:inline">
+                {currentStep === 1 ? 'Home' : 'Back'}
+              </span>
+              <span className="sm:hidden">
+                {currentStep === 1 ? 'Home' : 'Back'}
+              </span>
             </HolographicButton>
 
             {/* Next / Submit Button */}
-            {currentStep < totalSteps ? (
+            {!isLastStep ? (
               <HolographicButton
                 variant="aurora"
                 size="md"
                 onClick={goNext}
                 icon={HiArrowRight}
                 iconPosition="right"
+                className="flex-shrink-0"
               >
                 Next
               </HolographicButton>
             ) : (
               <HolographicButton
                 variant="gold"
-                size="lg"
+                size="md"
                 onClick={handleSubmit}
                 loading={isSubmitting}
                 icon={HiSparkles}
                 iconPosition="right"
+                className="w-full sm:w-auto"
               >
-                Reveal My Destiny
+                <span className="hidden xs:inline">Reveal My Destiny</span>
+                <span className="xs:hidden">Reveal Destiny</span>
               </HolographicButton>
             )}
           </motion.div>
@@ -440,14 +477,16 @@ const StepHeader = memo(({ icon, title, subtitle }) => (
     transition={{ delay: 0.1 }}
   >
     <motion.span
-      className="text-3xl inline-block mb-2"
+      className="text-2xl sm:text-3xl inline-block mb-2"
       animate={{ rotate: [0, -5, 5, 0], scale: [1, 1.1, 1] }}
       transition={{ duration: 0.6 }}
     >
       {icon}
     </motion.span>
-    <h3 className="font-display text-xl font-semibold text-white mb-1">{title}</h3>
-    <p className="font-body text-sm text-white/30">{subtitle}</p>
+    <h3 className="font-display text-lg sm:text-xl font-semibold text-white mb-1">
+      {title}
+    </h3>
+    <p className="font-body text-xs sm:text-sm text-white/30">{subtitle}</p>
   </motion.div>
 ))
 
