@@ -419,9 +419,6 @@ const CrystalDatePicker = memo(({
         </motion.div>
       </div>
 
-      {/* ─── ZODIAC PREVIEW ─── */}
-      {day && month && <ZodiacPreview day={day} month={month} />}
-
       {/* ─── ERRORS ─── */}
       <AnimatePresence>
         {hasError && (
@@ -449,56 +446,6 @@ const CrystalDatePicker = memo(({
   )
 })
 
-// ─── Zodiac Preview ───
-const ZodiacPreview = memo(({ day, month }) => {
-  const getQuickSign = (d, m) => {
-    const dd = parseInt(d)
-    const mm = parseInt(m)
-    if (!dd || !mm) return null
-    const signs = [
-      { name: 'Capricorn', symbol: '♑', s: [12, 22], e: [1, 19] },
-      { name: 'Aquarius', symbol: '♒', s: [1, 20], e: [2, 18] },
-      { name: 'Pisces', symbol: '♓', s: [2, 19], e: [3, 20] },
-      { name: 'Aries', symbol: '♈', s: [3, 21], e: [4, 19] },
-      { name: 'Taurus', symbol: '♉', s: [4, 20], e: [5, 20] },
-      { name: 'Gemini', symbol: '♊', s: [5, 21], e: [6, 20] },
-      { name: 'Cancer', symbol: '♋', s: [6, 21], e: [7, 22] },
-      { name: 'Leo', symbol: '♌', s: [7, 23], e: [8, 22] },
-      { name: 'Virgo', symbol: '♍', s: [8, 23], e: [9, 22] },
-      { name: 'Libra', symbol: '♎', s: [9, 23], e: [10, 22] },
-      { name: 'Scorpio', symbol: '♏', s: [10, 23], e: [11, 21] },
-      { name: 'Sagittarius', symbol: '♐', s: [11, 22], e: [12, 21] },
-    ]
-    for (const sign of signs) {
-      if (
-        (mm === sign.s[0] && dd >= sign.s[1]) ||
-        (mm === sign.e[0] && dd <= sign.e[1])
-      )
-        return sign
-    }
-    return null
-  }
-
-  const sign = getQuickSign(day, month)
-  if (!sign) return null
-
-  return (
-    <motion.div
-      className="mt-3 flex items-center gap-2 pl-1"
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <span className="text-2xl">{sign.symbol}</span>
-      <span className="text-sm font-body text-white/40">
-        You are a{' '}
-        <span className="text-cosmic-gold font-medium">{sign.name}</span>
-      </span>
-    </motion.div>
-  )
-})
-
 CrystalDatePicker.displayName = 'CrystalDatePicker'
-ZodiacPreview.displayName = 'ZodiacPreview'
 
 export default CrystalDatePicker;

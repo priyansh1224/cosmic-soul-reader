@@ -1,8 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════
-// 🧮 COSMIC CALCULATIONS
+// 🧮 COSMIC CALCULATIONS — VEDIC JYOTISH NAME-BASED RASHI SYSTEM
 // ═══════════════════════════════════════════════════════════════════
 
-import { ZODIAC_SIGNS } from '@data/zodiacSigns'
+import {
+  ZODIAC_SIGNS,
+  getRashiByName,
+  getRashiByDate,
+  getZodiacSign,
+} from '@data/zodiacSigns'
 import { LIFE_PATH_MEANINGS } from '@data/numerology'
 import {
   LOVE_PREDICTIONS,
@@ -24,8 +29,43 @@ import {
   getSeededPercentage,
 } from '@utils/seededRandom'
 
+// ═══════════════════════════════════════════════════════════════════
+// 🔤 PRIMARY: Get Rashi from first name's first letter/syllable
+// Uses authentic Vedic Jyotish Nakshatra-Rashi name mapping
+// ═══════════════════════════════════════════════════════════════════
+
 /**
- * Determine zodiac sign from day and month
+ * Determines the Vedic Rashi ID based on the first letter/syllable
+ * of the person's first name (as per Jyotish Shastra).
+ *
+ * Falls back to date-of-birth method if no name match is found.
+ *
+ * @param {string} firstName - The person's first name
+ * @param {number|string} [day] - Birth day (fallback)
+ * @param {number|string} [month] - Birth month (fallback)
+ * @returns {string|null} - The Vedic Rashi ID (e.g. 'mesha', 'vrishabha') or null
+ */
+export const getZodiacSignIdFromName = (firstName, day, month) => {
+  // --- Step 1: Try Vedic name-based Rashi detection ---
+  const rashiByName = getRashiByName(firstName)
+  if (rashiByName) {
+    return rashiByName.id // e.g. 'mesha', 'karka', etc.
+  }
+
+  // --- Step 2: Fallback to date-of-birth if name didn't match ---
+  if (day && month) {
+    const rashiByDate = getRashiByDate(day, month)
+    if (rashiByDate) {
+      return rashiByDate.id
+    }
+  }
+
+  return null
+}
+
+/**
+ * Determine zodiac sign from day and month (Western/date-based method)
+ * Kept as utility — used as fallback inside getZodiacSignIdFromName
  */
 export const getZodiacSignId = (day, month) => {
   const d = parseInt(day)
@@ -41,7 +81,7 @@ export const getZodiacSignId = (day, month) => {
         return sign.id
       }
     } else if (sign.startMonth > sign.endMonth) {
-      // Handles Capricorn (Dec-Jan)
+      // Handles Makara (Dec 22 – Jan 19)
       if (
         (m === sign.startMonth && d >= sign.startDay) ||
         (m === sign.endMonth && d <= sign.endDay)
@@ -60,6 +100,10 @@ export const getZodiacSignId = (day, month) => {
 
   return null
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔢 NUMEROLOGY CALCULATIONS
+// ═══════════════════════════════════════════════════════════════════
 
 /**
  * Calculate Life Path Number (Numerology)
@@ -86,7 +130,7 @@ export const calculateLifePathNumber = (day, month, year) => {
 }
 
 /**
- * Calculate Soul Urge Number from name
+ * Calculate Soul Urge Number from name (vowels only)
  */
 export const calculateSoulUrge = (name) => {
   const vowels = 'aeiou'
@@ -109,7 +153,7 @@ export const calculateSoulUrge = (name) => {
 }
 
 /**
- * Calculate Destiny Number from full name
+ * Calculate Destiny Number from full name (all letters)
  */
 export const calculateDestinyNumber = (fullName) => {
   const cleanName = fullName.toLowerCase().replace(/[^a-z]/g, '')
@@ -128,63 +172,104 @@ export const calculateDestinyNumber = (fullName) => {
   return sum
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// 🌟 MAIN READING GENERATOR
+// ═══════════════════════════════════════════════════════════════════
+
 /**
  * Generate complete cosmic reading
+ * PRIMARY: Rashi is determined by first name's first letter (Vedic method)
+ * FALLBACK: If name doesn't match, uses date of birth
  */
 export const generateReading = (formData) => {
-  const { firstName, lastName, gender, day, month, year, birthTime, intention, mood, relationshipStatus, partnerSign } = formData
+  const {
+    firstName,
+    lastName,
+    gender,
+    day,
+    month,
+    year,
+    birthTime,
+    intention,
+    mood,
+    relationshipStatus,
+    partnerSign,
+  } = formData
 
-  const signId = getZodiacSignId(day, month)
+  // ─────────────────────────────────────────────────────────────
+  // 🔤 RASHI DETECTION: Name-first, date-fallback
+  // ─────────────────────────────────────────────────────────────
+  const signId = getZodiacSignIdFromName(firstName, day, month)
   if (!signId) return null
 
   const zodiacData = ZODIAC_SIGNS[signId]
+  if (!zodiacData) return null
+
+  // Determine which method was used (for UI display if needed)
+  const rashiByName = getRashiByName(firstName)
+  const rashiMethod = rashiByName ? 'name' : 'date'
+  const rashiConfidence = rashiByName ? 'high' : 'medium'
+  const matchedNameLetter = firstName
+    ? firstName.trim().charAt(0).toUpperCase()
+    : ''
+
   const seed = createSeed(day, month, year)
   const fullName = `${firstName} ${lastName}`.trim()
 
-  // Numerology
+  // ─────────────────────────────────────────────────────────────
+  // 🔢 NUMEROLOGY
+  // ─────────────────────────────────────────────────────────────
   const lifePathNumber = calculateLifePathNumber(day, month, year)
   const soulUrge = calculateSoulUrge(firstName)
   const destinyNumber = calculateDestinyNumber(fullName)
 
   // Life path meaning
-  const lifePathMeaning = LIFE_PATH_MEANINGS[lifePathNumber] || LIFE_PATH_MEANINGS[lifePathNumber % 9 || 9]
+  const lifePathMeaning =
+    LIFE_PATH_MEANINGS[lifePathNumber] ||
+    LIFE_PATH_MEANINGS[lifePathNumber % 9 || 9]
 
-  // Predictions
+  // ─────────────────────────────────────────────────────────────
+  // 🔮 PREDICTIONS
+  // ─────────────────────────────────────────────────────────────
   const lovePrediction = getSeededItem(LOVE_PREDICTIONS, seed)
   const careerPrediction = getSeededItem(CAREER_PREDICTIONS, seed + 1)
   const healthPrediction = getSeededItem(HEALTH_PREDICTIONS, seed + 2)
   const spiritualPrediction = getSeededItem(SPIRITUAL_PREDICTIONS, seed + 3)
 
-  // Daily horoscope - based on current date for daily variation
+  // Daily horoscope — changes daily
   const today = new Date()
-  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
+  const dayOfYear = Math.floor(
+    (today - new Date(today.getFullYear(), 0, 0)) / 86400000
+  )
   const horoscope = getSeededItem(DAILY_HOROSCOPES, seed + dayOfYear)
 
-  // Cosmic message
+  // ─────────────────────────────────────────────────────────────
+  // ✨ COSMIC MESSAGES
+  // ─────────────────────────────────────────────────────────────
   const cosmicMessage = getSeededItem(COSMIC_MESSAGES, seed + 10)
   const affirmation = getSeededItem(SOUL_AFFIRMATIONS, seed + 20)
   const wisdom = getSeededItem(COSMIC_WISDOM, seed + 30)
 
-  // Chakra
+  // ─────────────────────────────────────────────────────────────
+  // 🧘 CHAKRA
+  // ─────────────────────────────────────────────────────────────
   const primaryChakra = getPrimaryChakra(signId)
   const chakraBalance = CHAKRAS.map((chakra, i) => ({
     ...chakra,
     level: getSeededPercentage(seed + i + 100),
   }))
 
-  // Past lives
+  // ─────────────────────────────────────────────────────────────
+  // 🔄 PAST LIVES & RECOMMENDATIONS
+  // ─────────────────────────────────────────────────────────────
   const pastLives = getPastLives(signId)
-
-  // Recommendations
   const recommendations = getRecommendations(zodiacData.elementType)
 
-  // Love language
+  // ─────────────────────────────────────────────────────────────
+  // 💕 LOVE & COMPATIBILITY
+  // ─────────────────────────────────────────────────────────────
   const loveLanguage = LOVE_LANGUAGES[signId]
-
-  // Element compatibility
   const elementCompat = ELEMENT_COMPATIBILITY[zodiacData.elementType]
-
-  // Relationship advice
   const relationAdvice = RELATIONSHIP_ADVICE[zodiacData.elementType]
 
   // Energy meter
@@ -193,24 +278,36 @@ export const generateReading = (formData) => {
   // Lucky number for today
   const luckyNumberToday = getSeededNumber(seed + dayOfYear, 1, 99)
 
-  // Partner compatibility (if provided)
+  // ─────────────────────────────────────────────────────────────
+  // 💑 PARTNER COMPATIBILITY (if provided)
+  // ─────────────────────────────────────────────────────────────
   let partnerCompatibility = null
   if (partnerSign) {
-    const partnerData = ZODIAC_SIGNS[partnerSign.toLowerCase()]
+    const partnerKey = partnerSign.toLowerCase()
+    const partnerData = ZODIAC_SIGNS[partnerKey]
     if (partnerData) {
-      const compatDetail = zodiacData.compatibilityDetails?.[partnerData.name]
-      const elementCompatScore = elementCompat?.[partnerData.elementType]
+      const compatDetail =
+        zodiacData.compatibilityDetails?.[partnerData.name]
+      const elementCompatScore =
+        elementCompat?.[partnerData.elementType]
 
       partnerCompatibility = {
         partnerSign: partnerData,
-        score: compatDetail?.score || elementCompatScore?.score || 65,
-        description: compatDetail?.description || elementCompatScore?.description || 'A unique cosmic connection with its own special energy.',
-        loveLanguageMatch: LOVE_LANGUAGES[partnerSign.toLowerCase()],
+        score:
+          compatDetail?.score || elementCompatScore?.score || 65,
+        description:
+          compatDetail?.description ||
+          elementCompatScore?.description ||
+          'A unique cosmic connection with its own special energy.',
+        loveLanguageMatch: LOVE_LANGUAGES[partnerKey],
         elementInteraction: elementCompatScore,
       }
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // 📦 RETURN COMPLETE READING
+  // ─────────────────────────────────────────────────────────────
   return {
     // User Info
     user: {
@@ -225,9 +322,16 @@ export const generateReading = (formData) => {
       relationshipStatus,
     },
 
-    // Zodiac
+    // Zodiac — Vedic Rashi
     zodiac: zodiacData,
     signId,
+    rashiDetection: {
+      method: rashiMethod, // 'name' or 'date'
+      confidence: rashiConfidence, // 'high' or 'medium'
+      matchedLetter: matchedNameLetter,
+      nameLetters: zodiacData.nameLetters,
+      nameLettersDetailed: zodiacData.nameLettersDetailed,
+    },
 
     // Numerology
     numerology: {
