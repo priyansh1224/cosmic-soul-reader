@@ -158,6 +158,7 @@ const SoulInputForm = memo(() => {
           tiltEnabled={false}
           disableTilt
           className="p-4 sm:p-6 md:p-8 lg:p-10"
+          style={{ overflow: 'visible' }}
         >
           {/* ─── PANEL HEADER ─── */}
           <motion.div
@@ -211,7 +212,20 @@ const SoulInputForm = memo(() => {
           />
 
           {/* ─── FORM STEPS ─── */}
-          <div className="relative min-h-[300px] sm:min-h-[350px]">
+          <div
+            className={cn(
+              'relative',
+              // Step 4 needs extra bottom space for the dropdown on mobile
+              // and overflow must be visible so the dropdown isn't clipped
+              currentStep === 4
+                ? 'min-h-[380px] sm:min-h-[350px]'
+                : 'min-h-[300px] sm:min-h-[350px]'
+            )}
+            style={{
+              // CRITICAL: Allow dropdown to overflow outside this container
+              overflow: currentStep === 4 ? 'visible' : 'hidden',
+            }}
+          >
             <AnimatePresence mode="wait" custom={direction}>
               {/* ════════════ STEP 1: IDENTITY ════════════ */}
               {currentStep === 1 && (
@@ -363,6 +377,7 @@ const SoulInputForm = memo(() => {
                   animate="center"
                   exit="exit"
                   className="space-y-5 sm:space-y-6"
+                  style={{ overflow: 'visible' }}
                 >
                   <StepHeader
                     icon="💫"
@@ -379,8 +394,19 @@ const SoulInputForm = memo(() => {
                     size="sm"
                   />
 
-                  {/* ── PARTNER SIGN with mobile-safe dropdown ── */}
-                  <div className="relative z-20">
+                  {/* ── PARTNER SIGN - Fixed for mobile & desktop ── */}
+                  <div
+                    className="relative"
+                    style={{
+                      // Ensure dropdown can extend beyond all parent boundaries
+                      zIndex: 50,
+                      overflow: 'visible',
+                      // Give enough space below on mobile for the dropdown to render
+                      // without needing to scroll inside a clipped area
+                      paddingBottom: 8,
+                      isolation: 'isolate',
+                    }}
+                  >
                     <StardustSelect
                       label="Partner's Zodiac Sign"
                       name="partnerSign"
@@ -391,6 +417,25 @@ const SoulInputForm = memo(() => {
                       placeholder="Select partner's sign"
                       options={partnerSignOptions}
                       optional
+                      // Pass portal/dropdown positioning hints if supported
+                      menuPlacement="auto"
+                      menuPosition="fixed"
+                      menuPortalTarget={
+                        typeof document !== 'undefined' ? document.body : undefined
+                      }
+                      menuShouldScrollIntoView
+                      maxMenuHeight={200}
+                      styles={{
+                        // If StardustSelect accepts custom styles (react-select style)
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999,
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          zIndex: 9999,
+                        }),
+                      }}
                     />
                     <p className="text-xs text-white/20 font-body text-center mt-2">
                       Adding a partner's sign unlocks compatibility insights
@@ -406,11 +451,15 @@ const SoulInputForm = memo(() => {
             className={cn(
               'mt-6 sm:mt-8 pt-4 sm:pt-6',
               'border-t border-white/[0.05]',
-              // Mobile: stack vertically on last step, row on other steps
+              'relative',
               isLastStep
                 ? 'flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:justify-between'
                 : 'flex flex-row items-center justify-between gap-3',
             )}
+            style={{
+              // Keep navigation below any open dropdown
+              zIndex: 10,
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
